@@ -1,7 +1,7 @@
 import { EditorEvents } from "@tiptap/core";
 import { AiEditorOptions, InnerEditor } from "../../core/AiEditor";
 import {AbstractMenuButton} from "../AbstractMenuButton";
-import { createTocList, handleTocClick, type ITocItem } from "../../extensions/TocGenerator";
+import { createTocList, handleTocClick, type ITocItem } from "../../extensions/TocGeneratorExt";
 
 
 /** Table of contents */
