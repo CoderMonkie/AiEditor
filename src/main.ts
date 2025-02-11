@@ -14,8 +14,9 @@ window.aiEditor = new AiEditor({
     // draggable:false,
     // theme: "dark",
     // editable:false,
-    content: 'AiEditor 是一个面向 AI 的下一代富文本编辑器。',
-    // contentIsMarkdown: true,
+    // content: 'AiEditor 是一个面向 AI 的下一代富文本编辑器。',
+    content: mdContent,
+    contentIsMarkdown: true,
     textSelectionBubbleMenu: {
         // enable:false
         //[AI, Bold, Italic, Underline, Strike, Code]
@@ -179,9 +180,10 @@ window.aiEditor = new AiEditor({
         })
     },
     toc: {
-        visible: true,
-        includeLevels: [1,2,3]
+        visible: true, // for show TOC at initialization
+        includeLevels: [1,2,3], // for include heading levels
+        onTocVisibleChange: (visible) => {
+            console.log('TOC visible:', visible)
+        }
     },
 })
-//@ts-ignore
-window.aiEditor.setMarkdownContent(mdContent)

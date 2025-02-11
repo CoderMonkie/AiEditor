@@ -40,8 +40,10 @@ export class TocMenuButton extends AbstractMenuButton {
     }
 
     onClick() {
-        const isActive = !!this.querySelector("div.active");
-        this.toggleActiveView(!isActive);
+        const activeChangeTo = !this.querySelector("div.active");
+        this.toggleActiveView(activeChangeTo);
+        const editor = this.editor as InnerEditor;
+        editor.aiEditor.options.toc?.onTocVisibleChange?.(activeChangeTo);
     }
     
     /**

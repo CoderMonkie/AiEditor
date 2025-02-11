@@ -188,6 +188,7 @@ export type AiEditorOptions = {
     toc?: {
         visible?: boolean, // used to set whether to show the table of contents during initialization
         includeLevels?: number[], // used to set which heading levels to include, such as [1,2,3,4]
+        onTocVisibleChange?: (visible: boolean) => void, // triggered on click TOC menu button
     }
 } & Partial<Omit<EditorOptions, "element">>
 
