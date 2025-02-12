@@ -639,7 +639,9 @@ export class AiEditor {
         //custom layout
         if (this.customLayout) {
             this.header?.remove();
+            this.tocEl?.remove();
             this.mainEl.remove();
+            this.mainWrapper.remove();
             this.footer?.remove();
         } else {
             this.container.remove();
