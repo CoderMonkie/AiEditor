@@ -2,6 +2,7 @@
 import {AiEditor} from "./core/AiEditor.ts";
 // import { config } from "./spark.ts";
 // import {OpenaiModelConfig} from "./ai/openai/OpenaiModelConfig.ts";
+import mdContent from '../mdContentDemo'
 // @ts-ignore
 window.aiEditor = new AiEditor({
     element: "#aiEditor",
@@ -13,8 +14,9 @@ window.aiEditor = new AiEditor({
     // draggable:false,
     // theme: "dark",
     // editable:false,
-    content: 'AiEditor 是一个面向 AI 的下一代富文本编辑器。',
-    // contentIsMarkdown: true,
+    // content: 'AiEditor 是一个面向 AI 的下一代富文本编辑器。',
+    content: mdContent,
+    contentIsMarkdown: true,
     textSelectionBubbleMenu: {
         // enable:false
         //[AI, Bold, Italic, Underline, Strike, Code]
@@ -176,5 +178,13 @@ window.aiEditor = new AiEditor({
                 resolve(data)
             }, 200)
         })
-    }
+    },
+    toc: {
+        visible: true, // for show TOC at initialization
+        includeLevels: [1,2,3,4,5,6], // for include heading levels
+        position: 'left',
+        onTocVisibleChange: (visible) => {
+            console.log('TOC visible:', visible)
+        }
+    },
 })

@@ -39,6 +39,7 @@ import {FigureExt} from "../extensions/FigureExt.ts";
 import {FigcaptionExt} from "../extensions/FigcaptionExt.ts";
 import {PasteExt} from "../extensions/PasteExt.ts";
 import {ClassNameExt} from "../extensions/ClassNameExt.ts";
+import {TocGeneratorExt} from "../extensions/TocGeneratorExt.ts";
 
 export const getExtensions = (editor: AiEditor, options: AiEditorOptions): Extensions => {
     // the Collaboration extension comes with its own history handling
@@ -132,6 +133,11 @@ export const getExtensions = (editor: AiEditor, options: AiEditorOptions): Exten
             }),
             PasteExt,
             ClassNameExt,
+            TocGeneratorExt.configure({
+                visible: !!options.toc?.visible,
+                position: options.toc?.position || 'left',
+                includeLevels: options.toc?.includeLevels || [1, 2, 3, 4],
+            }),
             ContainerExt.configure({
                 defaultType: options.container?.defaultType || "warning",
                 typeItems: options.container?.typeItems || defaultItems,

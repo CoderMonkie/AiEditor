@@ -185,6 +185,12 @@ export type AiEditorOptions = {
     },
     textCounter?: (text: string) => number,
     ai?: AiGlobalConfig,
+    toc?: {
+        visible?: boolean, // used to set whether to show the table of contents during initialization
+        position?: 'left' | 'top', // used to set the position of the table of contents, default is 'left'
+        includeLevels?: number[], // used to set which heading levels to include, such as [1,2,3,4]
+        onTocVisibleChange?: (visible: boolean) => void, // triggered on click TOC menu button
+    }
 } & Partial<Omit<EditorOptions, "element">>
 
 const defaultOptions: Partial<AiEditorOptions> = {
@@ -195,6 +201,11 @@ const defaultOptions: Partial<AiEditorOptions> = {
     draggable: true,
     placeholder: "",
     toolbarSize: 'small',
+    toc: {
+        visible: false,
+        position: 'left',
+        includeLevels: [1,2,3,4],
+    }
 }
 
 export class InnerEditor extends Tiptap {
@@ -235,6 +246,8 @@ export class AiEditor {
 
     header!: Header;
 
+    mainWrapper!: HTMLDivElement; // for layout of toc and main content
+    tocEl!: HTMLDivElement;
     mainEl!: HTMLDivElement;
 
     footer!: Footer;
@@ -297,7 +310,16 @@ export class AiEditor {
 
         rootEl.appendChild(this.container);
 
+        this.mainWrapper = document.createElement("div");
+        this.mainWrapper.classList.add("aie-container__main-wrapper");
+        // this.mainWrapper.style.flexGrow = "1";
+        // this.mainWrapper.style.overflow = "hidden";
+
+        this.tocEl = document.createElement("div");
+        this.tocEl.classList.add("aie-container__toc");
+
         this.mainEl = document.createElement("div");
+        this.mainEl.classList.add("aie-container__main");
         this.mainEl.style.flexGrow = "1";
         this.mainEl.style.overflow = "auto";
 
@@ -359,7 +381,8 @@ export class AiEditor {
 
 
     protected onCreate(props: EditorEvents['create']) {
-        this.innerEditor.view.dom.style.height = "calc(100% - 20px)"
+        // this.innerEditor.view.dom.style.height = "calc(100% - 20px)"
+        this.innerEditor.view.dom.style.height = "fit-content"
 
         this.eventComponents.forEach((zEvent) => {
             zEvent.onCreate && zEvent.onCreate(props, this.options);
@@ -368,11 +391,37 @@ export class AiEditor {
         const _header = this.container.querySelector(".aie-container-header") || this.container;
         _header.appendChild(this.header);
 
-        const _main = this.container.querySelector(".aie-container-main") || this.container;
-        _main.appendChild(this.mainEl);
+        let _footer = this.container.querySelector(".aie-container-footer");
+        if (_footer) {
+            _footer.appendChild(this.footer);
+        } else {
+            _footer = this.footer;
+            this.container.appendChild(this.footer);
+        }
 
-        const _footer = this.container.querySelector(".aie-container-footer") || this.container;
-        _footer.appendChild(this.footer);
+        let _mainWrapper = this.container.querySelector(".aie-container-main-wrapper");
+        if (_mainWrapper) {
+            _mainWrapper.appendChild(this.mainWrapper);
+        } else {
+            _mainWrapper = this.mainWrapper
+            this.container.insertBefore(this.mainWrapper, _footer);
+        }
+
+        const _toc = this.container.querySelector(".aie-container-toc");
+        if (_toc) {
+            _toc.appendChild(this.tocEl)
+            this.mainWrapper.appendChild(_toc);
+        } else {
+            this.mainWrapper.appendChild(this.tocEl);
+        }
+        
+        const _main = this.container.querySelector(".aie-container-main");
+        if (_main) {
+            _main.appendChild(this.mainEl)
+            this.mainWrapper.appendChild(_main);
+        } else {
+            this.mainWrapper.appendChild(this.mainEl);
+        }
 
         if (this.options.ai) {
             AiModelManager.init(this.innerEditor, this.options.ai);
@@ -493,6 +542,37 @@ export class AiEditor {
         return headings;
     }
 
+    setTocPosition(position: 'left' | 'top') {
+        if (!this.options.toc) {
+            this.options.toc = {
+                ...defaultOptions.toc,
+                position: position,
+            }
+        }
+        this.options.toc.position = position;
+
+        this.eventComponents.forEach((ec) => {
+            ec.onEvent && ec.onEvent({ type: 'tocPositionChange',  value: position });
+        })
+        return this;
+    }
+
+    setTocVisible(visible: boolean) {
+        if (!this.options.toc) {
+            this.options.toc = {
+                ...defaultOptions.toc,
+                visible: visible,
+            }
+        }
+        this.options.toc.visible = visible;
+
+        this.eventComponents.forEach((ec) => {
+            ec.onEvent && ec.onEvent({ type: 'tocVisibleChange',  value: visible });
+        })
+        return this;
+    }
+    
+
     focus() {
         this.innerEditor.commands.focus();
         return this;
@@ -597,7 +677,9 @@ export class AiEditor {
         //custom layout
         if (this.customLayout) {
             this.header?.remove();
+            this.tocEl?.remove();
             this.mainEl.remove();
+            this.mainWrapper.remove();
             this.footer?.remove();
         } else {
             this.container.remove();

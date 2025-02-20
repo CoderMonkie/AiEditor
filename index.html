@@ -25,6 +25,11 @@
             }
         }
 
+        function handlePositionChange(radio) {
+            console.log('Selected position: ',radio.value);
+            aiEditor.setTocPosition(radio.value);
+        }
+
         var _hmt = _hmt || [];
         (function () {
             var hm = document.createElement("script");
@@ -56,9 +61,41 @@
     <a href="https://aieditor.dev" target="_blank">访问官网</a>
     <button onclick="changeTheme()">切换主题</button>
     <button onclick="changeLang()">切换语言</button>
+    
+    <div class="" style="font-size: 16px">
+        <label for="">目录位置</label>
+        <label>
+            <input type="radio" checked name="position" value="left" onchange="handlePositionChange(this)" /> 左侧
+        </label>
+        <label>
+            <input type="radio" name="position" value="top" onchange="handlePositionChange(this)" /> 顶部
+        </label>
+    </div>
 </div>
 
-<div id="aiEditor" style="height: 450px;  margin: 20px"></div>
+<div id="aiEditor" style="height: 640px;  margin: 20px">
+    
+    <!-- ↓ both works well ↓ -->
+
+    <!-- old layout -->
+    <!-- <div class="aie-container">
+        <div class="aie-container-header"></div>
+        <div class="aie-container-main"></div>
+        <div class="aie-container-footer"></div>
+    </div> -->
+
+    <!-- new layout -->
+    <!-- <div class="aie-container">
+        <div class="aie-container-header"></div>
+        <div class="aie-container-main-wrapper">
+            <div class="aie-container-toc"></div>
+            <div class="aie-container-main"></div>
+        </div>
+        <div class="aie-container-footer"></div>
+    </div> -->
+
+    <!-- ↑ both works well ↑ -->
+</div>
 <script type="module" src="/src/main.ts"></script>
 </body>
 </html>

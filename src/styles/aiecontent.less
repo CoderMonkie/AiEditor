@@ -1,6 +1,15 @@
+.aie-container__main {
+  flex-grow: 1;
+  overflow: auto;
+  &::-webkit-scrollbar{ width: 4px; }
+  &::-webkit-scrollbar-track-piece { background-color: var(--aie-content-scrollbar-track-piece) ; }  /* 轨道颜色 */
+  &::-webkit-scrollbar-thumb { background-color: var(--aie-content-scrollbar-thumb);  }
+  &::-webkit-scrollbar-thumb:hover { background-color:var(--aie-content-scrollbar-thumb-hover);  }
+  &::-webkit-scrollbar-thumb:active { background-color:var(--aie-content-scrollbar-thumb-active);  }
+}
 
 .aie-content {
-  overflow: auto;
+  // overflow: auto;
   padding: 10px;
   margin: 0;
   color: var(--aie-text-color);
@@ -8,12 +17,6 @@
   & > :first-child {
     margin-top: 0;
   }
-
-  &::-webkit-scrollbar{  width: 4px; }
-  &::-webkit-scrollbar-track-piece { background-color: var(--aie-content-scrollbar-track-piece) ; }  /* 轨道颜色 */
-  &::-webkit-scrollbar-thumb {     background-color: var(--aie-content-scrollbar-thumb);  }
-  &::-webkit-scrollbar-thumb:hover { background-color:var(--aie-content-scrollbar-thumb-hover);  }
-  &::-webkit-scrollbar-thumb:active { background-color:var(--aie-content-scrollbar-thumb-active);  }
 
   a{
     color: var(--aie-content-link-a-color); /* 未访问的链接 */
@@ -231,4 +234,196 @@
 .resize-cursor {
   cursor: ew-resize;
   cursor: col-resize;
+}
+
+.aie-container {
+  // for customize-layout
+  .aie-container-main-wrapper {
+    flex-grow: 1;
+    overflow: hidden;
+  }
+  // inner
+  .aie-container__main-wrapper,
+  .aie-container__main {
+    overflow: auto;
+    &::-webkit-scrollbar{ width: 4px; }
+    &::-webkit-scrollbar-track-piece { background-color: var(--aie-content-scrollbar-track-piece);}  /* 轨道颜色 */
+    &::-webkit-scrollbar-thumb { background-color: var(--aie-content-scrollbar-thumb); }
+    &::-webkit-scrollbar-thumb:hover { background-color:var(--aie-content-scrollbar-thumb-hover); }
+    &::-webkit-scrollbar-thumb:active { background-color:var(--aie-content-scrollbar-thumb-active); }
+  }
+
+  .toc-position-is-left {
+    display: flex;
+    flex-grow: 1;
+    overflow: hidden;
+
+    .aie-container__toc {
+      display: flex;
+      flex-direction: column;
+      color: var(--aie-toc-text-color);
+      border-right: 1px solid var(--aie-border-color);
+    }
+
+    .aside-toc-head {
+      svg {
+        cursor: pointer;
+        &:hover {
+          color: var(--aie-toc-text-color-hover);
+          background-color: var(--aie-toc-bg-color);
+        }
+      }
+      &.is-open {
+        display: flex;
+        justify-content: space-between;
+        padding: 16px;
+        border-bottom: 1px solid var(--aie-border-color);
+      }
+      &.is-close {
+        padding: 8px;
+      }
+    }
+    
+    .table-of-contents {
+      width: 240px;
+      padding: 16px;
+      flex: 1;
+      overflow-y: auto;
+
+      .aie-toc-item {
+        // padding: 8px 0;
+        cursor: pointer;
+        border-radius: 3px;
+        display: inline-flex;
+        align-items: center;
+        width: 100%;
+        color: var(--aie-toc-text-color);
+
+        .aie-toc-item__title {
+          width: 100%;
+          display: inline-flex;
+          align-items: center;
+          .aie-toc-item__symbol {
+            display: inline-block;
+            width: 4px;
+            height: 4px;
+            border-radius: 100%;
+            background: var(--aie-toc-text-color);
+          }
+          .aie-toc-item__text {
+            display: inline-block;
+            width: 100%;
+            text-overflow: ellipsis;
+            overflow: hidden;
+            white-space: nowrap;
+            padding: 8px;
+          }
+        }
+        
+        .aie-toc-item__title.toplevel {
+          font-size: 16px;
+          font-weight: bold;
+
+          .aie-toc-item__symbol {
+            display: none;
+          }
+        }
+        .aie-toc-item__title.secondary {
+          font-size: 12px;
+          margin-left: 16px;
+        }
+        
+        &:hover {
+          color: var(--aie-toc-text-color-hover);
+          background-color: var(--aie-toc-bg-color);
+          .aie-toc-item__symbol {
+            background-color: var(--aie-toc-text-color-hover);
+          }
+          .aie-toc-item__dots {
+            border-bottom: 1px dashed var(--aie-toc-border-color-hover);
+          }
+        }
+
+        &.is-current {
+          color: var(--aie-toc-item-active-color);
+          &:hover {
+            color: var(--aie-toc-item-active-color);
+          }
+        }
+      }
+    }
+
+    .aside-toc--is-open {
+      .aside-toc-head.is-close {
+        display: none;
+      }
+    }
+    .aside-toc--is-close {
+      .aside-toc-head.is-open {
+        display: none;
+      }
+      .table-of-contents {
+        display: none;
+      }
+    }
+  }
+  .toc-position-is-top {
+    height: 100%;
+    overflow: auto;
+    .table-of-contents {
+      background-color: var(--aie-toc-bg-color);
+      margin: 12px;
+      padding: 20px;
+      border-radius: 4px;
+      .aie-toc-item {
+        padding: 4px 0;
+        cursor: pointer;
+        color: var(--aie-toc-text-color);
+        display: flex;
+        align-items: center;
+  
+        .aie-toc-item__title {
+          display: inline-flex;
+          align-items: center;
+          .aie-toc-item__symbol {
+            display: inline-block;
+            width: 4px;
+            height: 4px;
+            border-radius: 100%;
+            margin-right: 8px;
+            background: var(--aie-toc-text-color);
+          }
+        }
+        .aie-toc-item__title.toplevel {
+          font-size: 18px;
+          font-weight: bold;
+          .aie-toc-item__symbol {
+            display: none;
+          }
+        }
+        .aie-toc-item__title.secondary {
+          font-size: 14px;
+          margin-left: 16px;
+        }
+  
+        .aie-toc-item__dots {
+          display: inline-block;
+          border-bottom: 1px dashed var(--aie-toc-border-color);
+          margin-top: -1px;
+          margin-left: 12px;
+          flex: 1 1 0%;
+        }
+        
+        &:hover {
+          color: var(--aie-toc-text-color-hover);
+          .aie-toc-item__symbol {
+            background-color: var(--aie-toc-text-color-hover);
+          }
+          .aie-toc-item__dots {
+            border-bottom: 1px dashed var(--aie-toc-border-color-hover);
+          }
+        }
+      }
+    }
+  }
 }
