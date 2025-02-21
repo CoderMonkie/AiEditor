@@ -58,7 +58,7 @@ export function createTocList(arr: ITocItem[], position: TocPosition = 'left') {
       return `
 <div class="aie-toc-item ${isCurrent ? 'is-current' : ''}" data-toc-id="${id}" data-pos="${pos}">
   <span class="aie-toc-item__title ${
-    isTopLevel ? "toplevel" : ""
+    isTopLevel ? "toplevel" : "secondary"
   }" style="margin-left:${indent}px;${isLeft?'width:calc(100% - ' + indent + 'px);':''}">
     <span class="aie-toc-item__symbol"></span>
     <span class="aie-toc-item__text" title="${text}">${text}</span>
