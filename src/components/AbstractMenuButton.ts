@@ -1,4 +1,4 @@
-import {AiEditorOptions, AiEditorEventListener, InnerEditor} from "../core/AiEditor.ts";
+import {AiEditorOptions, AiEditorEventListener, InnerEditor, AiEditorEvent} from "../core/AiEditor.ts";
 import {Editor, EditorEvents} from "@tiptap/core";
 // @ts-ignore
 import {ChainedCommands} from "@tiptap/core/dist/packages/core/src/types";
@@ -60,4 +60,6 @@ export class AbstractMenuButton extends HTMLElement implements AiEditorEventList
         }
     }
 
+    // @ts-ignore
+    onEvent(event: AiEditorEvent) {}
 }
