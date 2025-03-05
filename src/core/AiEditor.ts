@@ -10,6 +10,7 @@ import {
 
 import {Header} from "../components/Header.ts";
 import {Footer} from "../components/Footer.ts";
+import {FindAndReplaceToolBox} from '../components/FindAndReplaceToolBox';
 
 import {getExtensions} from "./getExtensions.ts";
 
@@ -42,6 +43,7 @@ import {organizeHTMLContent} from "../util/htmlUtil.ts";
 
 defineCustomElement('aie-header', Header);
 defineCustomElement('aie-footer', Footer);
+defineCustomElement('find-and-replace', FindAndReplaceToolBox);
 
 export interface NameAndValue {
     name: string,

@@ -43,6 +43,7 @@ import {Container} from "./menus/Container.ts";
 import {Custom} from "./menus/Custom.ts";
 import {defineCustomElement} from "../commons/defineCustomElement.ts";
 import {Group} from "./menus/Group.ts";
+import { FindReplaceIconBtn } from "./menus/FindReplaceIconBtn.ts";
 import {initToolbarKeys} from "../util/initToolbarKeys.ts";
 import { defaultToolbarKeys } from "./DefaultToolbarKeys.ts";
 
@@ -87,6 +88,7 @@ defineCustomElement('aie-printer', Printer);
 defineCustomElement('aie-emoji', Emoji);
 defineCustomElement('aie-ai', Ai);
 defineCustomElement('aie-group', Group);
+defineCustomElement('aie-find-replace', FindReplaceIconBtn);
 
 export type MenuButtonOptions = {
     key: string,
