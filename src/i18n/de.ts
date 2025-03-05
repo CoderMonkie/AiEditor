@@ -126,4 +126,16 @@ export const de =  {
     "ai-optimization": "Optimierung",
     "ai-proofreading": "Korrekturlesen",
     "ai-translation": "Übersetzung",
+    
+    ///find and replace
+    "find": "suchen",
+    "replace": "ersetzen",
+    "find-replace": "suchen und ersetzen",
+    "search-placeholder": "Bitte Suchinhalt eingeben",
+    "replace-placeholder": "Bitte Ersetzinhalt eingeben",
+    "match-case": "Groß-/Kleinschreibung beachten",
+    "find-previous": "vorherige",
+    "find-next": "nächste",
+    "replace-all": "alle ersetzen",
+
 }

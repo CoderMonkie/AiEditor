@@ -131,5 +131,15 @@ export const en =  {
     "ai-proofreading":"Proofreading",
     "ai-translation":"Translation",
 
+    ///find and replace
+    "find":"find",
+    "replace":"replace",
+    "find-replace":"find and replace",
+    "search-placeholder":"please input search content",
+    "replace-placeholder":"please input replace content",
+    "match-case":"match case",
+    "find-previous":"previous",
+    "find-next":"next",
+    "replace-all":"replace all",
 
 }

@@ -121,4 +121,16 @@ export const ja = {
     "ai-optimization": "AI最適化",
     "ai-proofreading": "AI校正",
     "ai-translation": "AI翻訳",
+    
+    ///find and replace
+    "find": "検索",
+    "replace": "置換",
+    "find-replace": "検索と置換",
+    "search-placeholder": "検索内容を入力してください",
+    "replace-placeholder": "置換内容を入力してください",
+    "match-case": "大文字と小文字を区別",
+    "find-previous": "前を検索",
+    "find-next": "次を検索",
+    "replace-all": "すべて置換",
+
 }

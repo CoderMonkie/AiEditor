@@ -70,6 +70,7 @@
     "@tiptap/starter-kit": "^2.11.5",
     "@tiptap/suggestion": "^2.11.5",
     "crypto-js": "^4.2.0",
+    "draggabilly": "^3.0.0",
     "fetch-event-stream": "^0.1.5",
     "i18next": "^23.16.8",
     "joplin-turndown-plugin-gfm": "^1.0.12",

@@ -121,4 +121,16 @@ export const vi  =  {
     "ai-optimization":"AI Tối ưu hóa",
     "ai-proofreading":"AI Hiệu đính",
     "ai-translation":"AI Dịch",
+
+    ///find and replace
+    "find": "tìm",
+    "replace": "thay thế",
+    "find-replace": "tìm và thay thế",
+    "search-placeholder": "vui lòng nhập nội dung tìm kiếm",
+    "replace-placeholder": "vui lòng nhập nội dung thay thế",
+    "match-case": "phân biệt chữ hoa chữ thường",
+    "find-previous": "tìm trước",
+    "find-next": "tìm tiếp",
+    "replace-all": "thay thế tất cả",
+
 }

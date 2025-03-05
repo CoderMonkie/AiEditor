@@ -121,4 +121,16 @@ export const ko = {
     "ai-optimization": "AI 최적화",
     "ai-proofreading": "AI 교정",
     "ai-translation": "AI 번역",
+
+    ///find and replace
+    "find": "찾기",
+    "replace": "바꾸기",
+    "find-replace": "찾기 및 바꾸기",
+    "search-placeholder": "검색 내용을 입력하세요",
+    "replace-placeholder": "바꿀 내용을 입력하세요",
+    "match-case": "대소문자 구분",
+    "find-previous": "이전 찾기",
+    "find-next": "다음 찾기",
+    "replace-all": "모두 바꾸기",
+
 }

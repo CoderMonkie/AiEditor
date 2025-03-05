@@ -120,4 +120,16 @@ export const pt =  {
     "ai-optimization": "Otimização",
     "ai-proofreading": "Revisão",
     "ai-translation": "Tradução",
+
+    ///find and replace
+    "find":"encontrar",
+    "replace":"substituir",
+    "find-replace":"encontrar e substituir",
+    "search-placeholder":"por favor insira o conteúdo de busca",
+    "replace-placeholder":"por favor insira o conteúdo de substituição",
+    "match-case":"distinguir maiúsculas de minúsculas",
+    "find-previous":"anterior",
+    "find-next":"próximo",
+    "replace-all":"substituir tudo",
+
 }

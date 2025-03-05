@@ -121,4 +121,16 @@ export const th  =  {
     "ai-optimization":"AI ปรับแต่ง",
     "ai-proofreading":"AI พิสูจน์อักษร",
     "ai-translation":"AI แปล",
+
+    ///find and replace
+    "find": "ค้นหา",
+    "replace": "แทนที่",
+    "find-replace": "ค้นหาและแทนที่",
+    "search-placeholder": "กรุณาใส่เนื้อหาที่ค้นหา",
+    "replace-placeholder": "กรุณาใส่เนื้อหาที่จะแทนที่",
+    "match-case": "แยกแยะตัวพิมพ์ใหญ่และตัวพิมพ์เล็ก",
+    "find-previous": "ค้นหาก่อนหน้า",
+    "find-next": "ค้นหาถัดไป",
+    "replace-all": "แทนที่ทั้งหมด",
+
 }

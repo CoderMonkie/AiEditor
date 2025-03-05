@@ -121,4 +121,16 @@ export const id  =  {
     "ai-optimization":"AI Optimasi",
     "ai-proofreading":"AI Koreksi",
     "ai-translation":"AI Terjemahan",
+
+    ///find and replace
+    "find": "cari",
+    "replace": "ganti",
+    "find-replace": "cari dan ganti",
+    "search-placeholder": "silakan masukkan konten pencarian",
+    "replace-placeholder": "silakan masukkan konten pengganti",
+    "match-case": "perhatikan huruf besar/kecil",
+    "find-previous": "sebelumnya",
+    "find-next": "berikutnya",
+    "replace-all": "ganti semua",
+
 }
