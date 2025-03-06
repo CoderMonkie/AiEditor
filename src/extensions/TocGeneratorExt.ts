@@ -45,8 +45,7 @@ export function createTocList(arr: ITocItem[], position: TocPosition = 'left') {
   }
 
   const isLeft = position === 'left';
-  const first = arr[0];
-  const topLevel = first.level;
+  const topLevel = Math.min(...arr.map(item => item.level));
 
   return arr
     .map((item) => {
@@ -211,6 +210,7 @@ export const TocGeneratorExt = Extension.create({
 
           if (!this.storage.currentId && tocItems.length > 0) {
             tocItems[0].isCurrent = true;
+            this.storage.currentId = tocItems[0].id;
           }
         }
 
@@ -232,6 +232,11 @@ export const TocGeneratorExt = Extension.create({
           }
           bindContentScrollHandler(this.options.includeLevels, updateCurrentTocItem);
           this.storage.isScrollHandlerBinded = true;
+        }
+
+        if (this.storage.currentId) {
+          const tocItem = (this.editor as InnerEditor).aiEditor.tocEl.querySelector(`[data-toc-id="${this.storage.currentId}"]`)!;
+          tocItem.scrollIntoView({ behavior: "smooth", block:'start' });
         }
 
         return true;
