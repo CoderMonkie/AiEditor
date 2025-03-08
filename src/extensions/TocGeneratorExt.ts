@@ -126,6 +126,7 @@ export const bindContentScrollHandler = (includeLevels: number[], cb: (id: strin
       const tocItem = document.querySelector(`.aie-toc-item[data-toc-id="${closestHeading.id}"]`) as HTMLElement;
       if (tocItem) {
         tocItem.classList.add('is-current');
+        tocItem.scrollIntoView({ behavior: "smooth", block:'start' });
         cb(closestHeading.id);
       }
     }
@@ -236,7 +237,7 @@ export const TocGeneratorExt = Extension.create({
 
         if (this.storage.currentId) {
           const tocItem = (this.editor as InnerEditor).aiEditor.tocEl.querySelector(`[data-toc-id="${this.storage.currentId}"]`)!;
-          tocItem.scrollIntoView({ behavior: "smooth", block:'start' });
+          tocItem.scrollIntoView({ behavior: "instant", block:'start' });
         }
 
         return true;
