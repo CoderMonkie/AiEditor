@@ -4,6 +4,7 @@ import {PluginKey} from "@tiptap/pm/state";
 import {InnerEditor} from "../core/AiEditor.ts";
 import {Slice} from '@tiptap/pm/model';
 import {cleanHtml, clearDataMpSlice, isExcelDocument, removeEmptyParagraphs, removeHtmlTags} from "../util/htmlUtil.ts";
+import {uuid} from "../util/uuid.ts";
 
 export const PasteExt = Extension.create({
     name: 'pasteExt',
@@ -30,6 +31,26 @@ export const PasteExt = Extension.create({
                                 return true;
                             }
                         } else if (html) {
+                            const parser = new DOMParser();debugger;
+                            const tempDoc = parser.parseFromString(html, 'text/html');
+                            // process excel paste
+                            const table = tempDoc.querySelector("table");
+                            if (text && table && isExcelDocument(tempDoc)) {
+                                this.editor.commands.insertContent(table!.outerHTML, {
+                                    parseOptions: {
+                                        preserveWhitespace: false,
+                                    }
+                                });
+                                return true;
+                            }
+
+                            // 处理标题的 ID
+                            const headings = tempDoc.querySelectorAll('h1, h2, h3, h4, h5, h6');
+                            headings.forEach(heading => {
+                                heading.setAttribute('id', uuid());
+                            });
+                            html = tempDoc.body.innerHTML;
+
                             html = clearDataMpSlice(html);
                             const {options} = (this.editor as InnerEditor).aiEditor;
                             if (options.htmlPasteConfig) {
@@ -66,19 +87,9 @@ export const PasteExt = Extension.create({
                                     return true;
                                 }
                             }
-                            // process excel paste
-                            else if (text && html) {
-                                const parser = new DOMParser();
-                                const document = parser.parseFromString(html, 'text/html');
-                                const table = document.querySelector("table");
-                                if (table && isExcelDocument(document)) {
-                                    this.editor.commands.insertContent(table!.outerHTML, {
-                                        parseOptions: {
-                                            preserveWhitespace: false,
-                                        }
-                                    });
-                                    return true
-                                }
+                            else {
+                                this.editor.commands.insertContent(html);
+                                return true;
                             }
                         }
                     }
