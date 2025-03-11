@@ -235,7 +235,7 @@ export const TocGeneratorExt = Extension.create({
           this.storage.isScrollHandlerBinded = true;
         }
 
-        if (this.storage.currentId) {
+        if (this.storage.currentId && this.options.visible) {
           const tocItem = (this.editor as InnerEditor).aiEditor.tocEl.querySelector(`[data-toc-id="${this.storage.currentId}"]`)!;
           tocItem.scrollIntoView({ behavior: "instant", block:'start' });
         }
