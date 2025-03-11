@@ -48,7 +48,7 @@ export class FindAndReplaceToolBox extends HTMLElement implements AiEditorEventL
     }
     onTransaction(event: EditorEvents["transaction"]) {
         const {/*editor,*/transaction} = event;
-        if (!transaction.docChanged) {
+        if (!transaction.docChanged || !this.__visible) {
             return;
         }
         this.__setSearchReplace();
