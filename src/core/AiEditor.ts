@@ -10,6 +10,7 @@ import {
 
 import {Header} from "../components/Header.ts";
 import {Footer} from "../components/Footer.ts";
+import {OutlineView} from "../components/outline/OutlineView.ts";
 
 import {getExtensions} from "./getExtensions.ts";
 
@@ -42,6 +43,7 @@ import {organizeHTMLContent} from "../util/htmlUtil.ts";
 
 defineCustomElement('aie-header', Header);
 defineCustomElement('aie-footer', Footer);
+defineCustomElement('aie-outline-view', OutlineView);
 
 export interface NameAndValue {
     name: string,
@@ -186,6 +188,11 @@ export type AiEditorOptions = {
     },
     textCounter?: (text: string) => number,
     ai?: AiGlobalConfig,
+    outline?: {
+        visible?: boolean, // used to set whether to show the table of contents during initialization
+        includeLevels?: number[], // used to set which heading levels to include, such as [1,2,3,4]
+        onVisibleChange?: (visible: boolean) => void, // triggered on click TOC menu button
+    }
 } & Partial<Omit<EditorOptions, "element">>
 
 const defaultOptions: Partial<AiEditorOptions> = {
@@ -196,6 +203,10 @@ const defaultOptions: Partial<AiEditorOptions> = {
     draggable: true,
     placeholder: "",
     toolbarSize: 'small',
+    outline: {
+        visible: false,
+        includeLevels: [1,2,3,4],
+    }
 }
 
 export class InnerEditor extends Tiptap {
@@ -237,6 +248,7 @@ export class AiEditor {
     header!: Header;
 
     mainEl!: HTMLDivElement;
+    outlineEl!: OutlineView;
 
     footer!: Footer;
 
@@ -298,9 +310,15 @@ export class AiEditor {
 
         rootEl.appendChild(this.container);
 
+        this.outlineEl = document.createElement("aie-outline-view") as OutlineView;
+        this.outlineEl.classList.add("aie-container__outline");
+        this.eventComponents.push(this.outlineEl);
+
         this.mainEl = document.createElement("div");
+        this.mainEl.classList.add("aie-container__main");
         this.mainEl.style.flexGrow = "1";
-        this.mainEl.style.overflow = "auto";
+        this.mainEl.style.overflow = "hidden";
+        this.mainEl.style.position = "relative";
 
         this.header = new Header();
         this.eventComponents.push(this.header);
@@ -360,7 +378,11 @@ export class AiEditor {
 
 
     protected onCreate(props: EditorEvents['create']) {
-        this.innerEditor.view.dom.style.height = "calc(100% - 20px)"
+        // this.innerEditor.view.dom.style.height = "calc(100% - 20px)"
+        // aie-content
+        const contentEl = this.innerEditor.view.dom;
+        contentEl.classList.add("aie-content-scrollable");
+        contentEl.style.height = "calc(100% - 20px)";
 
         this.eventComponents.forEach((zEvent) => {
             zEvent.onCreate && zEvent.onCreate(props, this.options);
@@ -368,6 +390,8 @@ export class AiEditor {
 
         const _header = this.container.querySelector(".aie-container-header") || this.container;
         _header.appendChild(this.header);
+
+        this.mainEl.appendChild(this.outlineEl);
 
         const _main = this.container.querySelector(".aie-container-main") || this.container;
         _main.appendChild(this.mainEl);
@@ -494,6 +518,22 @@ export class AiEditor {
         return headings;
     }
 
+    setOutlineVisible(visible: boolean) {debugger;
+        if (!this.options.outline) {
+            this.options.outline = {
+                ...defaultOptions.outline,
+                visible: visible,
+            }
+        }
+        this.options.outline.visible = visible;
+
+        this.eventComponents.forEach((ec) => {
+            ec.onEvent && ec.onEvent({ type: 'outlineVisibleChange',  value: visible });
+        })
+        return this;
+    }
+    
+
     focus() {
         this.innerEditor.commands.focus();
         return this;
@@ -598,6 +638,7 @@ export class AiEditor {
         //custom layout
         if (this.customLayout) {
             this.header?.remove();
+            this.outlineEl?.remove();
             this.mainEl.remove();
             this.footer?.remove();
         } else {
