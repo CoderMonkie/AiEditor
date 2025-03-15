@@ -27,7 +27,7 @@ export const createStyle = () => {
   position: sticky;
   left: 0px;
   top: 0;
-  background: white;
+  background-color: var(--aie-bg-color);
   transition: width 0.1s ease;
   overflow: hidden;
 }
@@ -68,6 +68,7 @@ export const createStyle = () => {
 .outline-list {
   padding: 16px;
   flex-grow: 1;
+  overflow-x: hidden;
   overflow-y: auto;
 }
 .outline-list::-webkit-scrollbar{ width: 4px; }
@@ -157,6 +158,10 @@ indicators style
   display: flex;
   justify-content: center;
   scrollbar-width: none; /* Firefox */
+}
+:host(.is-hovered) .indicators-container,
+:host(.is-fixed) .indicators-container {
+  width: 0;
 }
 
 .outline-indicators {
