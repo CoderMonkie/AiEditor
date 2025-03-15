@@ -147,7 +147,7 @@ export const getExtensions = (editor: AiEditor, options: AiEditorOptions): Exten
             SearchAndReplace.configure({
                 searchResultClass: "aie-search-result",
                 caseSensitive: false,
-                disableRegex: false,
+                disableRegex: true,
             } as SearchAndReplaceOptions),
             FindReplaceExt,
             ...getBubbleMenus(editor),
