@@ -19,7 +19,7 @@ const showFindAndReplace = (editor: InnerEditor, tabType: FindAndReplaceTabType)
     if (!toolbox) {
         toolbox = document.createElement('find-and-replace') as FindAndReplaceToolBox;
         toolbox.classList.add('aie-toolbox__find-and-replace');
-        editor.aiEditor.container.appendChild(toolbox);
+        editor.aiEditor.mainEl.appendChild(toolbox);
         toolbox.editor = editor;
         editor.aiEditor.eventComponents.push(toolbox);
         toolbox.onCreate({editor}, editor.aiEditor.options);
