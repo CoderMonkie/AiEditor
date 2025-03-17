@@ -65,7 +65,6 @@ export class FindAndReplaceToolBox extends HTMLElement implements AiEditorEventL
     --findAndReplace-input-border-color-focus: #1a73e8;
     --findAndReplace-active-color: #1a73e8;
     --findAndReplace-button-bg: #f8f9fa;
-    --findAndReplace-outline-color: #1a73e8;
 
     --findAndReplace-tip-color: #aaa;
     --findAndReplace-case-sensitive-bg-color-hover: #eaeaea;
@@ -100,7 +99,7 @@ export class FindAndReplaceToolBox extends HTMLElement implements AiEditorEventL
 }
 
 .tab.active {
-    color: var(--findAndReplace-active-color);
+    color: var(--findAndReplace-active-color,#1a73e8);
 }
 
 .tab.active::after {
@@ -110,7 +109,7 @@ export class FindAndReplaceToolBox extends HTMLElement implements AiEditorEventL
     left: 0;
     width: 100%;
     height: 2px;
-    background: var(--findAndReplace-active-color);
+    background: var(--findAndReplace-active-color,#1a73e8);
 }
 
 .close-btn {
@@ -203,6 +202,9 @@ button {
     background: var(--findAndReplace-button-bg);
     cursor: pointer;
     transition: opacity 0.2s;
+}
+button:focus {
+    outline: 1px solid var(--findAndReplace-active-color,#1a73e8);
 }
 
 button[disabled] {
