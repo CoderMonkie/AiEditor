@@ -185,7 +185,7 @@ indicators style
   border-radius: 1px;
 }
 .is-current > .indicator {
-  background: #3ea2dd;
+  background-color: var(--aie-outline-item-active-color);
 }
 `.trim();
   return innerStyle;
