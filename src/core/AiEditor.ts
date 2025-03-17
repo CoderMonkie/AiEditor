@@ -207,7 +207,7 @@ const defaultOptions: Partial<AiEditorOptions> = {
     toolbarSize: 'small',
     outline: {
         visible: false,
-        includeLevels: [1,2,3,4],
+        includeLevels: [1,2,3,4,5,6],
     }
 }
 

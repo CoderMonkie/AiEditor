@@ -31,7 +31,7 @@ export const PasteExt = Extension.create({
                                 return true;
                             }
                         } else if (html) {
-                            const parser = new DOMParser();debugger;
+                            const parser = new DOMParser();
                             const tempDoc = parser.parseFromString(html, 'text/html');
                             // process excel paste
                             const table = tempDoc.querySelector("table");

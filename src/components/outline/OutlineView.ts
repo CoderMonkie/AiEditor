@@ -200,29 +200,19 @@ export class OutlineView extends HTMLElement implements AiEditorEventListener {
 
     // 获取所有不同的level值并排序
     const uniqueLevels = [...new Set(this.outlines.map(item => item.level))].sort((a, b) => a - b);
-    // 取前三个不同的level值
-    const top3Levels = uniqueLevels.slice(0, 3);
-    const targetLevels = [...this.outlines].filter(n=> top3Levels.includes(n.level));
-    console.log(targetLevels)
+    // 根据uniqueLevels的顺序动态生成宽度映射
+    const widths = [24, 20, 16]; // 前三个level对应的宽度值
+    const DEFAULT_WIDTH = 12; // 第四个及之后的level宽度
 
-    if(targetLevels.length === 0) {
-      return "";
-    }
-
-    const topLevel = targetLevels[0].level;
-    const widthMap = {
-      0: '24px',
-      1: '20px',
-      2: '16px',
-    }
-
-    return targetLevels.map(item => {
+    return this.outlines.map(item => { // 改为遍历全部outlines
       const { level, id, isCurrent } = item;
-        const levelDiffFromTop = (level - topLevel) as keyof typeof widthMap;
-        const width = widthMap[levelDiffFromTop];
+      // 根据当前level在uniqueLevels中的索引决定宽度
+      const levelIndex = uniqueLevels.indexOf(level);
+      const width = widths[levelIndex] || DEFAULT_WIDTH;
+
       return `
 <div class="linear-indicator level-${level} id-${id} ${isCurrent?'is-current':''}">
-  <div class="indicator" style="width:${width}"></div>
+  <div class="indicator" style="width:${width}px"></div>
 </div>
       `.trim();
     }).join('');
