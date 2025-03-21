@@ -13,6 +13,7 @@ import {TextAlign} from "@tiptap/extension-text-align";
 import {IndentExt} from "../extensions/IndentExt.ts";
 import {ImageExt} from "../extensions/ImageExt.ts";
 import {Table} from "@tiptap/extension-table";
+import {TableExt} from "../extensions/TableExt.ts";
 import {TableRow} from "@tiptap/extension-table-row";
 import {TableHeaderExt} from "../extensions/TableHeaderExt";
 import {TableCellExt} from "../extensions/TableCellExt";
@@ -82,6 +83,7 @@ export const getExtensions = (editor: AiEditor, options: AiEditorOptions): Exten
                 lastColumnResizable: true,
                 allowTableNodeSelection: true,
             }),
+            TableExt,
             TableRow,
             TableCellExt,
             TableHeaderExt,

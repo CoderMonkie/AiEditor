@@ -83,6 +83,8 @@ export const id  =  {
     "merge-cells-vertical":"Gabungkan sel vertikal",
     "split-cells-horizontal":"Pisahkan sel horizontal",
     "split-cells-vertical":"Pisahkan sel vertikal",
+    "merge-cells":"Gabungkan sel",
+    "split-cells":"Pisahkan sel",
     "delete-table":"Hapus tabel",
 
     ////link

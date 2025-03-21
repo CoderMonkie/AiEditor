@@ -83,6 +83,8 @@ export const ko = {
     "merge-cells-vertical": "셀 세로 병합",
     "split-cells-horizontal": "셀 가로 분할",
     "split-cells-vertical": "셀 세로 분할",
+    "merge-cells":"셀 병합",
+    "split-cells":"셀 분할",
     "delete-table": "테이블 삭제",
 
     ////link

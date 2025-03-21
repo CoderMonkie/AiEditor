@@ -84,6 +84,8 @@ export const en =  {
     "merge-cells-vertical":"Merge cells",
     "split-cells-horizontal":"Split cells",
     "split-cells-vertical":"Split cells",
+    "merge-cells":"Merge cells",
+    "split-cells":"Split cells",
     "delete-table":"Delete table",
 
     ///link

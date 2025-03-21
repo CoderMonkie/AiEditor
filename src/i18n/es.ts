@@ -83,6 +83,8 @@ export const es = {
     "merge-cells-vertical": "Combinar celdas verticalmente",
     "split-cells-horizontal": "Dividir celdas horizontalmente",
     "split-cells-vertical": "Dividir celdas verticalmente",
+    "merge-cells":"Combinar celdas",
+    "split-cells":"Dividir celdas",
     "delete-table": "Eliminar tabla",
 
     ////link

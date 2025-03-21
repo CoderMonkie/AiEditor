@@ -83,6 +83,8 @@ export const th  =  {
     "merge-cells-vertical":"ผสานเซลล์ตามแนวตั้ง",
     "split-cells-horizontal":"แยกเซลล์แนวนอน",
     "split-cells-vertical":"แยกเซลล์แนวตั้ง",
+    "merge-cells":"ผสานเซลล์",
+    "split-cells":"แยกเซลล์",
     "delete-table":"ลบตาราง",
 
     ////link
