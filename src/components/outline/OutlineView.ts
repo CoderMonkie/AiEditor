@@ -352,12 +352,19 @@ export class OutlineView extends HTMLElement implements AiEditorEventListener {
       }
     });
 
+    const outerMainEl = this.editor?.aiEditor.mainEl;
     // 如果没有提纲项，重置当前选中状态
     if (outlines.length === 0) {
       this.currentId = '';
-    } else if (!this.currentId) {
-      outlines[0].isCurrent = true;
-      this.currentId = outlines[0].id;
+      // 添加 no-data 类
+      outerMainEl?.classList.add('with-outline--no-data');
+    } else {
+      if (!this.currentId) {
+        outlines[0].isCurrent = true;
+        this.currentId = outlines[0].id;
+      }
+      // 移除 no-data 类
+      outerMainEl?.classList.remove('with-outline--no-data');
     }
     this.outlines = outlines;
 
