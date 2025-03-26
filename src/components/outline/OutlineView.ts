@@ -28,10 +28,12 @@ export class OutlineView extends HTMLElement implements AiEditorEventListener {
   private _shadowRoot: ShadowRoot;
   private state: OutlineState = 'is-collapsed'; // 默认状态为折叠
 
-  private wrapperEl!: HTMLDivElement;
+  private indicatorContainerEl!: HTMLDivElement;
   private outlineListEl!: HTMLDivElement;
   private indicatorsEl!: HTMLDivElement;
   private btnToggleEl!: HTMLElement;
+
+  private hoverTimer: number | null = null;
 
   constructor() {
     super();
@@ -45,15 +47,15 @@ export class OutlineView extends HTMLElement implements AiEditorEventListener {
   }
 
   private initElements() {
-    this.wrapperEl = this._shadowRoot.querySelector('.outline-view-wrapper') as HTMLDivElement;
     this.btnToggleEl = this._shadowRoot.querySelector('.outline-view-head-toggle') as HTMLElement;
-    this.outlineListEl = this._shadowRoot.querySelector('.outline-list') as HTMLDivElement;
+    this.indicatorContainerEl = this._shadowRoot.querySelector('.indicators-container') as HTMLDivElement;
     this.indicatorsEl = this._shadowRoot.querySelector('.outline-indicators') as HTMLDivElement;
+    this.outlineListEl = this._shadowRoot.querySelector('.outline-list') as HTMLDivElement;
   }
   private initEvents() {
-    this.wrapperEl.addEventListener('mouseenter', this.handleMouseEnter);
-    this.wrapperEl.addEventListener('mouseleave', this.handleMouseLeave);
-    this.indicatorsEl.addEventListener('mouseenter', this.handleMouseEnter);
+    this.indicatorContainerEl.addEventListener('mouseenter', this.handleMouseEnter);
+    this.addEventListener('mouseleave', this.handleMouseLeave);
+    //
     this.outlineListEl.addEventListener('click', this.handleOutlineClick);
     //
     this.btnToggleEl.addEventListener('click', this.handleToggleClick);
@@ -62,21 +64,27 @@ export class OutlineView extends HTMLElement implements AiEditorEventListener {
   }
 
   private handleMouseEnter = () => {
-    if (this.state === 'is-collapsed' && this.outlines.length > 0) {
-      this.updateState('is-hovered');
-
-      setTimeout(() => {
-        if (this.currentId) {
+    this.hoverTimer && clearTimeout(this.hoverTimer);
+    this.hoverTimer = window.setTimeout(() => {
+      if (this.state === 'is-collapsed' && this.outlines.length > 0) {      
+        this.updateState('is-hovered');
+        
+        this.currentId &&  setTimeout(() => {
           const tocItem = this.outlineListEl.querySelector(`.aie-outline-item[data-outline-id="${this.currentId}"]`) as HTMLElement;
           if (tocItem) {
             tocItem.scrollIntoView({ behavior: "auto", block: 'center' });
           }
-        }
-      }, 50); // 短暂延迟确保DOM已更新
-    }
+        }, 50); // 短暂延迟确保DOM已更新
+      }
+    }, 300);
   }
 
   private handleMouseLeave = () => {
+    if (this.hoverTimer) {
+      clearTimeout(this.hoverTimer);
+      this.hoverTimer = null;
+    }
+
     if (this.state === 'is-hovered') {
       this.updateState('is-collapsed');
     }
