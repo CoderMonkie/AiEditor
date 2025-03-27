@@ -83,6 +83,8 @@ export const vi  =  {
     "merge-cells-vertical":"Gộp ô dọc",
     "split-cells-horizontal":"Tách ô ngang",
     "split-cells-vertical":"Tách ô dọc",
+    "merge-cells":"Gộp ô",
+    "split-cells":"Tách ô",
     "delete-table":"Xóa bảng",
 
     ////link

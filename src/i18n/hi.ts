@@ -83,6 +83,8 @@ export const hi = {
     "merge-cells-vertical": "सेलों को लंबवत मिलाएं",
     "split-cells-horizontal": "सेलों को क्षैतिज विभाजित करें",
     "split-cells-vertical": "सेलों को लंबवत विभाजित करें",
+    "merge-cells": "सेलों को मिलाएं",
+    "split-cells": "सेलों को विभाजित करें",
     "delete-table": "तालिका हटाएं",
 
     ////link

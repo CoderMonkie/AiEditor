@@ -83,6 +83,8 @@ export const ja = {
     "merge-cells-vertical": "セルを縦に結合",
     "split-cells-horizontal": "セルを横に分割",
     "split-cells-vertical": "セルを縦に分割",
+    "merge-cells":"セルを結合",
+    "split-cells":"セルを分割",
     "delete-table": "テーブルを削除",
 
     ////link

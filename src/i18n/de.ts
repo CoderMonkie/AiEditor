@@ -82,6 +82,8 @@ export const de =  {
     "merge-cells-vertical": "Zellen vertikal verbinden",
     "split-cells-horizontal": "Zellen horizontal teilen",
     "split-cells-vertical": "Zellen vertikal teilen",
+    "merge-cells":"Zellen verbinden",
+    "split-cells":"Zellen teilen",
     "delete-table": "Tabelle löschen",
 
     /// link

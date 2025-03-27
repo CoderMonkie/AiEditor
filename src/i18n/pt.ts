@@ -82,6 +82,8 @@ export const pt =  {
     "merge-cells-vertical": "Mesclar células verticalmente",
     "split-cells-horizontal": "Dividir células horizontalmente",
     "split-cells-vertical": "Dividir células verticalmente",
+    "merge-cells":"Mesclar células",
+    "split-cells":"Dividir células",
     "delete-table": "Excluir tabela",
     
     /// link
