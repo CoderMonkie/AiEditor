@@ -412,7 +412,7 @@ button:not([disabled]):hover {
 
     __onVisibleChagne(visible: boolean) {
         this.__visible = visible;
-        this.currentTab = null;
+        !visible && (this.currentTab = null);
         this.style.display = visible ? 'block' : 'none';
         this.editor.aiEditor.eventComponents.forEach(ec=>{
             ec.onEvent && ec.onEvent({type: 'findAndReplaceToolboxVisibleChange', value: visible});
