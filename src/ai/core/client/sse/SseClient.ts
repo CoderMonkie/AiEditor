@@ -49,6 +49,8 @@ export class SseClient implements AiClient {
             this.onError();
             return;
         }
+        // 保存 fetch 响应
+        this.fetch = res;
 
         try {
             let msgEvents = events(res, this.ctrl.signal);
