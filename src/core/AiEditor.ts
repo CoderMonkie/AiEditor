@@ -189,6 +189,7 @@ export type AiEditorOptions = {
         values?: string[]
     },
     textCounter?: (text: string) => number,
+    poweredBy?: string | ((count:number) => string),
     ai?: AiGlobalConfig,
     outline?: {
         visible?: boolean, // used to set whether to show the table of contents during initialization
