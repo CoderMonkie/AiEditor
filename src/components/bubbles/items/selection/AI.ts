@@ -34,6 +34,11 @@ export const defaultAiPanelMenus = [
         title: 'check-spelling-and-grammar',
     },
     {
+        prompt: `<content>{content}</content>\n请基于前文内容帮我补充文章内容，续写内容长度不超过给出前文的三倍。\n注意：你应该先判断一下这句话是中文还是英文，如果是中文，请给我返回中文的内容，如果是英文，请给我返回英文内容，只需要返回内容即可，不需要告知我是中文还是英文。`,
+        icon: ` <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="none" d="M0 0h24v24H0z"></path><path d="M4 18.9997H20V13.9997H22V19.9997C22 20.552 21.5523 20.9997 21 20.9997H3C2.44772 20.9997 2 20.552 2 19.9997V13.9997H4V18.9997ZM16.1716 6.9997L12.2218 3.04996L13.636 1.63574L20 7.9997L13.636 14.3637L12.2218 12.9495L16.1716 8.9997H5V6.9997H16.1716Z"></path></svg>`,
+        title: 'ai-continuation',
+    },
+    {
         prompt: `<content>{content}</content>\n这句话的内容较长，帮我简化一下这个内容，并直接返回简化后的内容结果。\n注意：你应该先判断一下这句话是中文还是英文，如果是中文，请给我返回中文的内容，如果是英文，请给我返回英文内容，只需要返回内容即可，不需要告知我是中文还是英文。`,
         icon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M21 6.75736L19 8.75736V4H10V9H5V20H19V17.2426L21 15.2426V21.0082C21 21.556 20.5551 22 20.0066 22H3.9934C3.44476 22 3 21.5501 3 20.9932V8L9.00319 2H19.9978C20.5513 2 21 2.45531 21 2.9918V6.75736ZM21.7782 8.80761L23.1924 10.2218L15.4142 18L13.9979 17.9979L14 16.5858L21.7782 8.80761Z"></path></svg>`,
         title: 'make-shorter',
@@ -76,6 +81,7 @@ const startChat = (holder: Holder, container: HTMLDivElement, prompt: string) =>
             aiModel.chat(selectedText, prompt, {
                 onStart(aiClient) {
                     holder.aiClient = aiClient;
+                    container.querySelector<HTMLElement>(".aie-ai-panel-body-actions")!.style.display = "none";
                     container.querySelector<HTMLElement>(".aie-ai-panel-actions")!.style.display = "none";
                     container.querySelector<HTMLElement>(".loader")!.style.display = "block";
                     container.querySelector<HTMLElement>(".aie-ai-panel-body-content")!.style.display = "block";
@@ -84,7 +90,8 @@ const startChat = (holder: Holder, container: HTMLDivElement, prompt: string) =>
                 onStop() {
                     holder.aiClient = undefined;
                     container.querySelector("#go")!.innerHTML = Svgs.aiPanelStart;
-                    container.querySelector<HTMLElement>(".aie-ai-panel-footer")!.style.display = "block";
+                    // container.querySelector<HTMLElement>(".aie-ai-panel-footer")!.style.display = "block";
+                    container.querySelector<HTMLElement>(".aie-ai-panel-body-actions")!.style.display = "flex";
                     container.querySelector<HTMLElement>(".loader")!.style.display = "none";
                     container.querySelector<HTMLElement>(".aie-ai-panel-actions")!.style.display = "none";
                     smoothAppender.finished();
@@ -109,6 +116,21 @@ export const createAiPanelElement = (holder: Holder, aiBubbleMenuItems: AIBubble
             <button type="button" id="go" style="width: 30px;height: 30px">${Svgs.aiPanelStart}</button></div>
             <div class="aie-ai-panel-body-tips"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9 17C9 17 16 18 19 21H20C20.5523 21 21 20.5523 21 20V13.937C21.8626 13.715 22.5 12.9319 22.5 12C22.5 11.0681 21.8626 10.285 21 10.063V4C21 3.44772 20.5523 3 20 3H19C16 6 9 7 9 7H5C3.89543 7 3 7.89543 3 9V15C3 16.1046 3.89543 17 5 17H6L7 22H9V17ZM11 8.6612C11.6833 8.5146 12.5275 8.31193 13.4393 8.04373C15.1175 7.55014 17.25 6.77262 19 5.57458V18.4254C17.25 17.2274 15.1175 16.4499 13.4393 15.9563C12.5275 15.6881 11.6833 15.4854 11 15.3388V8.6612ZM5 9H9V15H5V9Z" fill="currentColor"></path></svg>
             ${t("tip-you-can-enter-text-above-or-select-the-operation-below")}</div>
+            <div class="aie-ai-panel-body-actions" style="display:none;">
+                <div>&nbsp;</div>
+                <div style="display: flex">
+                    <div id="actionHide" style="">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16">
+                            <path d="M17 6H22V8H20V21C20 21.5523 19.5523 22 19 22H5C4.44772 22 4 21.5523 4 21V8H2V6H7V3C7 2.44772 7.44772 2 8 2H16C16.5523 2 17 2.44772 17 3V6ZM18 8H6V20H18V8ZM9 4V6H15V4H9Z" fill="currentColor"></path>
+                        </svg>${t('ai-cancel')}
+                    </div>
+                    <div id="actionReplace" style="">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16"><path d="M10.071 4.92902L11.4852 6.34323L6.82834 11.0001L16.0002 11.0002L16.0002 13.0002L6.82839 13.0001L11.4852 17.6569L10.071 19.0712L2.99994 12.0001L10.071 4.92902ZM18.0001 19V5.00003H20.0001V19H18.0001Z" fill="currentColor"></path>
+                        </svg>${t('ai-replace')}
+                    </div>
+                    <button id="actionInsert">${t('ai-append')}</button>
+                </div>
+            </div>
         </div>
         <div class="aie-ai-panel-footer" style="display: none">
         <div class="aie-ai-panel-footer-tips">${t("you-can-do-the-following")}</div>
@@ -131,7 +153,7 @@ export const createAiPanelElement = (holder: Holder, aiBubbleMenuItems: AIBubble
         </div>
         `;
 
-    container.querySelector("#replace")!.addEventListener("click", () => {
+    container.querySelector("#actionReplace")!.addEventListener("click", () => {
         const textarea = container.querySelector("textarea")!;
         if (textarea.value) {
             holder.editor?.insertMarkdown(textarea.value)
@@ -140,7 +162,7 @@ export const createAiPanelElement = (holder: Holder, aiBubbleMenuItems: AIBubble
         }
     });
 
-    container.querySelector("#insert")!.addEventListener("click", () => {
+    container.querySelector("#actionInsert")!.addEventListener("click", () => {
         const textarea = container.querySelector("textarea")!;
         if (textarea.value) {
             const {state: {selection, doc}} = holder.editor!
@@ -155,7 +177,7 @@ export const createAiPanelElement = (holder: Holder, aiBubbleMenuItems: AIBubble
         }
     });
 
-    container.querySelector("#hide")!.addEventListener("click", () => {
+    container.querySelector("#actionHide")!.addEventListener("click", () => {
         holder.aiPanelInstance?.hide()
         const {state: {selection}} = holder.editor!
         if (selection.from != selection.to) {

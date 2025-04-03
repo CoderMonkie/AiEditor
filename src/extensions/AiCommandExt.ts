@@ -21,7 +21,7 @@ export type AiCommandOptions = {
 
 export const defaultCommands = [
     {
-        icon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M15 5.25C16.7949 5.25 18.25 3.79493 18.25 2H19.75C19.75 3.79493 21.2051 5.25 23 5.25V6.75C21.2051 6.75 19.75 8.20507 19.75 10H18.25C18.25 8.20507 16.7949 6.75 15 6.75V5.25ZM4 7C4 5.89543 4.89543 5 6 5H13V3H6C3.79086 3 2 4.79086 2 7V17C2 19.2091 3.79086 21 6 21H18C20.2091 21 22 19.2091 22 17V12H20V17C20 18.1046 19.1046 19 18 19H6C4.89543 19 4 18.1046 4 17V7Z" fill="currentColor"></path></svg>',
+        icon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M13.5 2C13.5 2.44425 13.3069 2.84339 13 3.11805V5H18C19.6569 5 21 6.34315 21 8V18C21 19.6569 19.6569 21 18 21H6C4.34315 21 3 19.6569 3 18V8C3 6.34315 4.34315 5 6 5H11V3.11805C10.6931 2.84339 10.5 2.44425 10.5 2C10.5 1.17157 11.1716 0.5 12 0.5C12.8284 0.5 13.5 1.17157 13.5 2ZM6 7C5.44772 7 5 7.44772 5 8V18C5 18.5523 5.44772 19 6 19H18C18.5523 19 19 18.5523 19 18V8C19 7.44772 18.5523 7 18 7H13H11H6ZM2 10H0V16H2V10ZM22 10H24V16H22V10ZM9 14.5C9.82843 14.5 10.5 13.8284 10.5 13C10.5 12.1716 9.82843 11.5 9 11.5C8.17157 11.5 7.5 12.1716 7.5 13C7.5 13.8284 8.17157 14.5 9 14.5ZM15 14.5C15.8284 14.5 16.5 13.8284 16.5 13C16.5 12.1716 15.8284 11.5 15 11.5C14.1716 11.5 13.5 12.1716 13.5 13C13.5 13.8284 14.1716 14.5 15 14.5Z"></path></svg>',
         name: "AI 助手",
         prompt: "",
         model: "auto",
@@ -171,6 +171,21 @@ export const AiCommandExt = Extension.create<AiCommandOptions>({
                             arrow: false,
                             placement: 'bottom',
                             getReferenceClientRect: () => getAIBoundingClientRect(editor as InnerEditor),
+                            onShow: () => {
+                                // 聚焦到输入框
+                                setTimeout(() => {
+                                    const {selection, doc} = editor!.state
+                                    const selectedText = doc.textBetween(selection.from, selection.to).trim();
+                                    const actionReplace = holder.aiPanelInstance!.popper.querySelector<HTMLElement>('#actionReplace');
+                                    if (selectedText) {
+                                        actionReplace && (actionReplace.style.display = 'block');
+                                    } else {
+                                        actionReplace && (actionReplace.style.display = 'none'); 
+                                    }
+                                    const promptInput = holder.aiPanelInstance!.popper.querySelector<HTMLInputElement>("#prompt");
+                                    if (promptInput) promptInput.focus();
+                                }, 0);
+                            },
                             onHide: () => {
                                 // 清理临时元素
                                 if (tempElement.parentNode) {
@@ -180,12 +195,6 @@ export const AiCommandExt = Extension.create<AiCommandOptions>({
                         });
                         // 立即显示AI面板
                         holder.aiPanelInstance.show();
-
-                        // 聚焦到输入框
-                        setTimeout(() => {
-                            const promptInput = holder.aiPanelInstance!.popper.querySelector<HTMLInputElement>("#prompt");
-                            if (promptInput) promptInput.focus();
-                        }, 0);
                     } else {
                         if (headerItems.length < props.index) {
                             headerItems[props.index].click(editor);
