@@ -5,6 +5,7 @@ import {EditorEvents} from "@tiptap/core";
 export class Footer extends HTMLElement implements AiEditorEventListener {
 
     count: number = 0
+    poweredBy: string | ((count:number) => string) | undefined = '' ;
     draggable: boolean = true;
 
     constructor() {
@@ -65,14 +66,23 @@ export class Footer extends HTMLElement implements AiEditorEventListener {
     }
 
     updateCharacters() {
+        let poweredByText = '';
+        if (typeof this.poweredBy === 'string') {
+            poweredByText = this.poweredBy + ' ' + this.count;
+        } else if (typeof this.poweredBy === 'function') {
+            poweredByText = this.poweredBy(this.count);
+        } else {
+            poweredByText = 'Powered by AiEditor, Characters: ' + this.count;
+        }
+        
         if (!this.draggable) {
             this.innerHTML = `<div style="display: flex;"> 
-                                <span style="margin-right: 10px"> Powered by AiEditor, Characters: ${this.count} </span>
+                                <span style="margin-right: 10px"> ${poweredByText} </span>
                             </div>
                             `;
         } else {
             this.innerHTML = `<div style="display: flex"> 
-                                <span> Powered by AiEditor, Characters: ${this.count} </span>
+                                <span> ${poweredByText} </span>
                                 <div style="width: 20px;height: 20px;overflow: hidden">
                                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="none" d="M0 0h24v24H0z"></path><path d="M12 16L6 10H18L12 16Z"></path></svg>
                                 </div>
@@ -81,8 +91,9 @@ export class Footer extends HTMLElement implements AiEditorEventListener {
         }
     }
 
-    onCreate(event: EditorEvents["create"], _: AiEditorOptions): void {
+    onCreate(event: EditorEvents["create"], options: AiEditorOptions): void {
         this.count = event.editor.storage.characterCount.characters()
+        this.poweredBy = options.poweredBy;
         this.updateCharacters()
     }
 

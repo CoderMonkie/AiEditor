@@ -185,6 +185,7 @@ export type AiEditorOptions = {
         values?: string[]
     },
     textCounter?: (text: string) => number,
+    poweredBy?: string | ((count:number) => string),
     ai?: AiGlobalConfig,
 } & Partial<Omit<EditorOptions, "element">>
 
