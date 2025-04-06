@@ -9,6 +9,8 @@ import {SmoothAppender} from "../../../../util/SmoothAppender.ts";
 import {getAIBoundingClientRect} from "../../../../util/getAIBoundingClientRect.ts";
 import { TextSelection } from "@tiptap/pm/state";
 import { getContextText } from '../../../../util/getText.ts'
+// @ts-ignore
+import Draggabilly from 'draggabilly';
 
 export type Holder = {
     editor?: InnerEditor,
@@ -111,6 +113,10 @@ export const createAiPanelElement = (holder: Holder, aiBubbleMenuItems: AIBubble
     container.classList.add("aie-ai-panel")
     container.innerHTML = `
         <div class="aie-ai-panel-body">
+            <div class="header">
+                <div class="handlebar" style="height:32px;flex:1;cursor:move;"></div>
+                <div class="icon-btn-close"><svg width="16" height="16" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M11.9997 10.5865L16.9495 5.63672L18.3637 7.05093L13.4139 12.0007L18.3637 16.9504L16.9495 18.3646L11.9997 13.4149L7.04996 18.3646L5.63574 16.9504L10.5855 12.0007L5.63574 7.05093L7.04996 5.63672L11.9997 10.5865Z"></path></svg></div>
+            </div>
             <div class="aie-ai-panel-body-content" style="display: none"><div class="loader">${Svgs.refresh}</div><textarea readonly></textarea></div>
             <div class="aie-ai-panel-body-input"><input id="prompt" placeholder="${t('placeholder-tell-ai-what-to-do-next')}" type="text" autocomplete="off" />
             <button type="button" id="go" style="width: 30px;height: 30px">${Svgs.aiPanelStart}</button></div>
@@ -177,13 +183,17 @@ export const createAiPanelElement = (holder: Holder, aiBubbleMenuItems: AIBubble
         }
     });
 
-    container.querySelector("#actionHide")!.addEventListener("click", () => {
+    function hideAiPanel(e: Event) {
         holder.aiPanelInstance?.hide()
         const {state: {selection}} = holder.editor!
         if (selection.from != selection.to) {
             holder.tippyInstance?.show()
         }
-    });
+        e.stopPropagation();
+        e.preventDefault();
+    }
+    container.querySelector("#actionHide")!.addEventListener("click", hideAiPanel);
+    container.querySelector(".icon-btn-close")!.addEventListener("click", hideAiPanel);
 
     container.querySelector("#go")!.addEventListener("click", () => {
         if (holder.aiClient) {
@@ -218,8 +228,19 @@ export const createAiPanelElement = (holder: Holder, aiBubbleMenuItems: AIBubble
         if (e.target === container) {
             holder.aiPanelInstance?.hide();
             holder.tippyInstance?.show();
+        } else {
+            setTimeout(() => {
+                holder.tippyInstance?.hide();
+            });
         }
+
     })
+
+    // @ts-ignore
+    new Draggabilly(container, {
+        handle: container.querySelector('.header .handlebar'),
+        containment: holder.editor!.aiEditor.mainEl,
+    });
 
     return container;
 }
@@ -255,7 +276,7 @@ export const AI = {
         return holder;
     },
 
-    onClick: (____, _, __, holder: Holder) => {
-        holder.tippyInstance?.hide()
-    }
+    // onClick: (____, _, __, holder: Holder) => {
+    //     holder.tippyInstance?.hide()
+    // }
 } as BubbleMenuItem
