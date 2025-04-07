@@ -589,6 +589,11 @@ export class AiEditor {
         return this;
     }
 
+    setDocName(name: string) {
+        this.options.documentName = name;
+        return this;
+    }
+
     setContent(content: string) {
         this.focus().clear().insert(content);
         return this;
