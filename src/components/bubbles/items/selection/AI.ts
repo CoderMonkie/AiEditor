@@ -69,6 +69,7 @@ const startChat = (holder: Holder, container: HTMLDivElement, prompt: string) =>
     } else {
         const textarea = container.querySelector("textarea")!;
         textarea.value = "";
+        textarea.style.height = "auto";
 
         // const {selection, doc} = holder.editor!.state
         // const selectedText = doc.textBetween(selection.from, selection.to);
