@@ -46,6 +46,7 @@ import {Group} from "./menus/Group.ts";
 import { FindReplaceIconBtn } from "./menus/FindReplaceIconBtn.ts";
 import {initToolbarKeys} from "../util/initToolbarKeys.ts";
 import { defaultToolbarKeys } from "./DefaultToolbarKeys.ts";
+import {Download} from "./menus/Download";
 
 defineCustomElement('aie-undo', Undo);
 defineCustomElement('aie-redo', Redo);
@@ -60,6 +61,7 @@ defineCustomElement('aie-bold', Bold);
 defineCustomElement('aie-italic', Italic);
 defineCustomElement('aie-underline', Underline);
 defineCustomElement('aie-strike', Strike);
+defineCustomElement('aie-download', Download);
 defineCustomElement('aie-link', Link);
 defineCustomElement('aie-source-code', SourceCode);
 defineCustomElement('aie-code', Code);
@@ -118,7 +120,7 @@ export class Header extends HTMLElement implements AiEditorEventListener {
     }
 
     onCreate(event: EditorEvents["create"], options: AiEditorOptions): void {
-        let toolbarKeys = options.toolbarKeys || defaultToolbarKeys;
+        let toolbarKeys = options.toolbarKeys! || defaultToolbarKeys;
         toolbarKeys = toolbarKeys.filter((tool) => {
             if (typeof tool === "string") {
                 return !options.toolbarExcludeKeys?.includes(tool as any);
