@@ -102,6 +102,7 @@ export interface HtmlPasteConfig {
 export type AiEditorOptions = {
     element: string | Element,
     content?: string,
+    documentName?: string,
     contentIsMarkdown?: boolean,
     contentRetention?: boolean,
     contentRetentionKey?: string,

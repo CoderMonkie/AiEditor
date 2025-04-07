@@ -127,12 +127,16 @@ export class Download extends AbstractDropdownMenuButton<DownloadInfo> {
     private downloadHtml(): void {
         if (!this.editor) return;
         const html = this.editor.aiEditor.getHtml();
-        downloadHtml(html);
+        const docName = this.editor.aiEditor.options.documentName || 'Document';
+        const timestamp = new Date().toISOString().replace(/[^0-9]/g, '').slice(0, 14);
+        downloadHtml(html, `${docName}_${timestamp}`);
     }
 
     private downloadMarkdown(): void {
         if (!this.editor) return;
         const markdown = this.editor.aiEditor.getMarkdown();
-        downloadMarkdown(markdown);
+        const docName = this.editor.aiEditor.options.documentName || 'Document';
+        const timestamp = new Date().toISOString().replace(/[^0-9]/g, '').slice(0, 14);
+        downloadMarkdown(markdown, `${docName}_${timestamp}`);
     }
 }
