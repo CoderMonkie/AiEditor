@@ -22,6 +22,18 @@ export const PasteExt = Extension.create({
 
                         if (!event.clipboardData) return false;
                         let text = event.clipboardData.getData('text/plain');
+
+                        const files = event.clipboardData.files;
+                        if (files.length && !text) {
+                            return false;
+                        }
+
+                        const slcn = view.state.selection;
+                        const targetNode = slcn.$from.node();
+                        if (targetNode && targetNode.type.name === 'codeBlock') {
+                            return false;
+                        }
+
                         let html = event.clipboardData.getData('text/html');
                         if (!html && text) {
                             text = text.replace(/\n/g, '<br>')
