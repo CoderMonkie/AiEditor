@@ -20,7 +20,7 @@ export type Holder = {
     // 添加自动开始对话的标志
     autoStart?: boolean,
     // 添加自动对话的提示语
-    autoPrompt?: string
+    autoPrompt?: string,
 }
 
 
@@ -74,7 +74,7 @@ const startChat = (holder: Holder, container: HTMLDivElement, prompt: string) =>
         // const {selection, doc} = holder.editor!.state
         // const selectedText = doc.textBetween(selection.from, selection.to);
         const selectedText = getContextText(holder.editor!);
-        if (!selectedText) {
+        if (!selectedText && !prompt) {
             return;
         }
         const options = holder.editor!.aiEditor.options;
@@ -202,10 +202,10 @@ export const createAiPanelElement = (holder: Holder, aiBubbleMenuItems: AIBubble
             return; 
         }
         const promptInput = container.querySelector<HTMLInputElement>("#prompt");
-        if (!promptInput || !promptInput.value) {
+        const prompt = promptInput?.value.trim();
+        if (!prompt) {
             return;
         }
-        const prompt = (container.querySelector("#prompt") as HTMLInputElement).value
         startChat(holder, container, prompt);
     });
 
