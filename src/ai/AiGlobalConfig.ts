@@ -20,6 +20,12 @@ export interface AiMenu {
 
 
 export interface AiGlobalConfig {
+    chatConfig?: {
+        role?: string,
+        reference?: any,
+        format?: string|string[],
+        constraints?: string|string[],
+    },
     models?: {
         openai?: OpenaiModelConfig,
         gitee?: GiteeModelConfig,
