@@ -41,6 +41,7 @@ import {Transaction} from "@tiptap/pm/state";
 import {DefaultToolbarKey} from "../components/DefaultToolbarKeys.ts";
 import {htmlToMd, mdToHtml} from "../util/mdUtil.ts";
 import {organizeHTMLContent} from "../util/htmlUtil.ts";
+import {getSelectedHtml} from "../util/getSelectedHtml.ts"
 
 defineCustomElement('aie-header', Header);
 defineCustomElement('aie-footer', Footer);
@@ -442,6 +443,11 @@ export class AiEditor {
         return this.innerEditor.getHTML();
     }
 
+    getSelectedHtml() {
+        if (this.innerEditor.state.selection.empty) return "";
+        return getSelectedHtml(this.innerEditor);
+    }
+
     getJson() {
         return this.innerEditor.getJSON();
     }
@@ -458,6 +464,10 @@ export class AiEditor {
 
     getMarkdown() {
         return htmlToMd(this.getHtml())
+    }
+    
+    getSelectedMarkdown() {
+        return htmlToMd(this.getSelectedHtml())
     }
 
     getOptions() {
