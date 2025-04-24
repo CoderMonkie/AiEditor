@@ -7,6 +7,7 @@ import {GiteeModelConfig} from "./gitee/GiteeModelConfig.ts";
 import {SparkAiModelConfig} from "./spark/SparkAiModelConfig.ts";
 import {CustomAiModelConfig} from "./custom/CustomAiModelConfig.ts";
 import {WenXinAiModelConfig} from "./wenxin/WenXinAiModelConfig.ts";
+import type {AiPanelReference} from "../components/ai-panel/ai-panel.ts";
 
 export interface AiMenu {
     icon: string,
@@ -22,9 +23,11 @@ export interface AiMenu {
 export interface AiGlobalConfig {
     chatConfig?: {
         role?: string,
-        reference?: any,
         format?: string|string[],
         constraints?: string|string[],
+        enableReference?: boolean,
+        references?: AiPanelReference[],
+        addReference?: (callback: (newRefs:AiPanelReference[])=>void) => void,
     },
     models?: {
         openai?: OpenaiModelConfig,

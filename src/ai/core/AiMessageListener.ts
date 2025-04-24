@@ -5,4 +5,5 @@ export interface AiMessageListener {
     onStart: (aiClient: AiClient) => void,
     onStop: () => void,
     onMessage: (message: AiMessage) => void,
+    onError?: (error: any) => void,
 }

@@ -1,4 +1,4 @@
-import {Editor, Extension} from '@tiptap/core'
+import {CommandProps, Editor, Extension} from '@tiptap/core'
 
 import Suggestion, {SuggestionOptions, SuggestionProps} from '@tiptap/suggestion'
 
@@ -9,9 +9,18 @@ import {AiEditorOptions, InnerEditor} from "../core/AiEditor.ts";
 // import {DefaultAiMessageListener} from "../ai/core/DefaultAiMessageListener.ts";
 import {AiMenu} from "../ai/AiGlobalConfig.ts";
 
-import {createAiPanelElement, defaultAiPanelMenus} from "../components/bubbles/items/selection/AI.ts";
+import {createAiPanel as createAiPanelElement, defaultAiPanelMenus} from "../components/bubbles/items/selection/AI.ts";
 import {getAIBoundingClientRect} from "../util/getAIBoundingClientRect.ts";
 import { Holder } from '../components/bubbles/items/selection/AI.ts';
+
+
+declare module '@tiptap/core' {
+    interface Commands<ReturnType> {
+        aiCommand: {
+            showQuickChat: () => ReturnType,
+      },
+    }
+}
 
 export type AiCommandOptions = {
     HTMLAttributes?: Record<string, any>
@@ -41,7 +50,7 @@ export const defaultCommands = [
     {
         icon: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M5 15V17C5 18.0544 5.81588 18.9182 6.85074 18.9945L7 19H10V21H7C4.79086 21 3 19.2091 3 17V15H5ZM18 10L22.4 21H20.245L19.044 18H14.954L13.755 21H11.601L16 10H18ZM17 12.8852L15.753 16H18.245L17 12.8852ZM8 2V4H12V11H8V14H6V11H2V4H6V2H8ZM17 3C19.2091 3 21 4.79086 21 7V9H19V7C19 5.89543 18.1046 5 17 5H14V3H17ZM6 6H4V9H6V6ZM10 6H8V9H10V6Z" fill="currentColor"></path></svg>',
         name: "AI 翻译",
-        prompt: "请帮我翻译以上内容，在翻译之前，想先判断一下这个内容是不是中文，如果是中文，则翻译为英文，如果是其他语言，则需要翻译为中文，注意，你只需要返回翻译的结果，不需要对此进行任何解释，不需要除了翻译结果以外的其他任何内容。",
+        prompt: "请帮我翻译这段内容，在翻译之前，想先判断一下这个内容是不是中文，如果是中文，则翻译为英文，如果是其他语言，则需要翻译为中文，注意，你只需要返回翻译的结果，不需要对此进行任何解释，不需要除了翻译结果以外的其他任何内容。",
         model: "auto",
     },
     // {
@@ -51,6 +60,74 @@ export const defaultCommands = [
     //     model: "auto",
     // },
 ] as AiMenu[];
+
+// Helper function to show the AI Panel
+export const showQuickChat = (editor: Editor, aiMenu?: AiMenu): boolean => {
+    const existingPanel = document.querySelector("aie-ai-panel");
+    // 如果已存在并且是被 pin 固定的面板，则重用它
+    if (existingPanel) {
+        return true;
+    }
+    // 创建一个holder对象
+    const holder:Holder = {
+        editor: editor as InnerEditor,
+        tippyInstance: void 0,
+        aiPanelInstance: (void 0) as (Instance | undefined),
+        aiClient: void 0,
+        autoStart: !!aiMenu, // Start automatically only if a specific menu item is provided
+        autoPrompt: aiMenu?.prompt || "", // Use provided prompt or empty
+    };
+    // 获取编辑器容器
+    const editorContainer = editor.view.dom.closest(".aie-container");
+    if (!editorContainer) return false;
+    // 创建一个临时元素作为tippy的参考点
+    const tempElement = document.createElement('div');
+    tempElement.style.position = 'absolute';
+    tempElement.style.visibility = 'hidden';
+    editorContainer.appendChild(tempElement);
+
+    // 创建AI面板
+    const aiPanelMenus = (editor as InnerEditor).aiEditor.options.ai?.bubblePanelMenus || defaultAiPanelMenus;
+    holder.aiPanelInstance = tippy(tempElement, {
+        content: createAiPanelElement(holder, aiPanelMenus),
+        appendTo: editorContainer,
+        trigger: 'manual',
+        interactive: true,
+        arrow: false,
+        placement: 'bottom',
+        getReferenceClientRect: () => getAIBoundingClientRect(editor as InnerEditor),
+        onShow: () => {
+            // 聚焦到输入框
+            // setTimeout(() => {
+            //     const {selection, doc} = editor!.state
+            //     const selectedText = doc.textBetween(selection.from, selection.to).trim();
+            //     const actionReplace = holder.aiPanelInstance!.popper.querySelector<HTMLElement>('#actionReplace');
+            //     if (selectedText) {
+            //         actionReplace && (actionReplace.style.display = 'block');
+            //     } else {
+            //         actionReplace && (actionReplace.style.display = 'none');
+            //     }
+
+            //     const inputElement = holder.aiPanelInstance!.popper.querySelector<HTMLInputElement>('input[type="text"]');
+            //     inputElement?.focus();
+            //     // 如果是自动启动，并且有提示词，则直接触发AI
+            //     if (holder.autoStart && holder.autoPrompt) {
+            //         const submitButton = holder.aiPanelInstance!.popper.querySelector<HTMLButtonElement>('button[type="submit"]');
+            //         if (inputElement && submitButton) {
+            //             inputElement.value = holder.autoPrompt;
+            //             submitButton.click();
+            //         }
+            //     }
+            // }, 100); // 延迟确保面板已渲染
+        },
+        onHidden: () => {
+            tempElement.remove(); // 清理临时元素
+            holder.aiClient?.stop(); // 停止可能正在运行的AI任务
+        },
+    });
+    holder.aiPanelInstance.show();
+    return true;
+};
 
 export const AiCommandExt = Extension.create<AiCommandOptions>({
     name: 'aiCommand',
@@ -144,57 +221,8 @@ export const AiCommandExt = Extension.create<AiCommandOptions>({
                     if (props && props.aiItem) {
                         const aiMenu = props.aiItem as AiMenu;
 
-                        // 创建一个holder对象
-                        const holder:Holder = {
-                            editor: editor as InnerEditor,
-                            tippyInstance: void 0,
-                            aiPanelInstance: (void 0) as (Instance | undefined),
-                            aiClient: void 0,
-                            autoStart: true,
-                            autoPrompt: aiMenu.prompt,
-                        };
-                        // 获取编辑器容器
-                        const editorContainer = editor.view.dom.closest(".aie-container");
-                        if (!editorContainer) return;
-                        // 创建一个临时元素作为tippy的参考点
-                        const tempElement = document.createElement('div');
-                        tempElement.style.position = 'absolute';
-                        tempElement.style.visibility = 'hidden';
-                        editorContainer.appendChild(tempElement);
-                        // 创建AI面板
-                        const aiPanelMenus = (editor as InnerEditor).aiEditor.options.ai?.bubblePanelMenus || defaultAiPanelMenus;
-                        holder.aiPanelInstance = tippy(tempElement, {
-                            content: createAiPanelElement(holder, aiPanelMenus),
-                            appendTo: editorContainer,
-                            trigger: 'manual',
-                            interactive: true,
-                            arrow: false,
-                            placement: 'bottom',
-                            getReferenceClientRect: () => getAIBoundingClientRect(editor as InnerEditor),
-                            onShow: () => {
-                                // 聚焦到输入框
-                                setTimeout(() => {
-                                    const {selection, doc} = editor!.state
-                                    const selectedText = doc.textBetween(selection.from, selection.to).trim();
-                                    const actionReplace = holder.aiPanelInstance!.popper.querySelector<HTMLElement>('#actionReplace');
-                                    if (selectedText) {
-                                        actionReplace && (actionReplace.style.display = 'block');
-                                    } else {
-                                        actionReplace && (actionReplace.style.display = 'none'); 
-                                    }
-                                    const promptInput = holder.aiPanelInstance!.popper.querySelector<HTMLInputElement>("#prompt");
-                                    if (promptInput) promptInput.focus();
-                                }, 0);
-                            },
-                            onHide: () => {
-                                // 清理临时元素
-                                if (tempElement.parentNode) {
-                                    tempElement.parentNode.removeChild(tempElement);
-                                }
-                            }
-                        });
                         // 立即显示AI面板
-                        holder.aiPanelInstance.show();
+                        showQuickChat(editor as InnerEditor, aiMenu);
                     } else {
                         if (headerItems.length < props.index) {
                             headerItems[props.index].click(editor);
@@ -339,6 +367,23 @@ export const AiCommandExt = Extension.create<AiCommandOptions>({
                         },
                     }
                 }
+            },
+        }
+    },
+
+    addCommands() {
+        return {
+            showQuickChat: () => (cmdProps: CommandProps) => {
+                return showQuickChat(cmdProps.editor as InnerEditor);
+            },
+        }
+    },
+
+    addKeyboardShortcuts() {
+        return {
+            'Mod-/': ({editor}: {editor:Editor}) => {
+                editor.commands.showQuickChat();
+                return true;
             },
         }
     },
