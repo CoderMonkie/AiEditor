@@ -13,6 +13,7 @@ import {TextAlign} from "@tiptap/extension-text-align";
 import {IndentExt} from "../extensions/IndentExt.ts";
 import {ImageExt} from "../extensions/ImageExt.ts";
 import {Table} from "@tiptap/extension-table";
+import {TableExt} from "../extensions/TableExt.ts";
 import {TableRow} from "@tiptap/extension-table-row";
 import {TableHeaderExt} from "../extensions/TableHeaderExt";
 import {TableCellExt} from "../extensions/TableCellExt";
@@ -39,6 +40,8 @@ import {FigureExt} from "../extensions/FigureExt.ts";
 import {FigcaptionExt} from "../extensions/FigcaptionExt.ts";
 import {PasteExt} from "../extensions/PasteExt.ts";
 import {ClassNameExt} from "../extensions/ClassNameExt.ts";
+// import {SearchAndReplace, type SearchAndReplaceOptions} from "@sereneinserenade/tiptap-search-and-replace"; // TODO: fix
+import {FindReplaceExt, SearchAndReplace, type SearchAndReplaceOptions} from "../extensions/FindReplaceExt";
 
 export const getExtensions = (editor: AiEditor, options: AiEditorOptions): Extensions => {
     // the Collaboration extension comes with its own history handling
@@ -82,6 +85,7 @@ export const getExtensions = (editor: AiEditor, options: AiEditorOptions): Exten
                 lastColumnResizable: true,
                 allowTableNodeSelection: true,
             }),
+            TableExt,
             TableRow,
             TableCellExt,
             TableHeaderExt,
@@ -136,6 +140,12 @@ export const getExtensions = (editor: AiEditor, options: AiEditorOptions): Exten
                 defaultType: options.container?.defaultType || "warning",
                 typeItems: options.container?.typeItems || defaultItems,
             }),
+            SearchAndReplace.configure({
+                searchResultClass: "aie-search-result",
+                caseSensitive: false,
+                disableRegex: true,
+            } as SearchAndReplaceOptions),
+            FindReplaceExt,
             ...getBubbleMenus(editor),
         )
     }

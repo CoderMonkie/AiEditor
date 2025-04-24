@@ -82,6 +82,8 @@ export const de =  {
     "merge-cells-vertical": "Zellen vertikal verbinden",
     "split-cells-horizontal": "Zellen horizontal teilen",
     "split-cells-vertical": "Zellen vertikal teilen",
+    "merge-cells":"Zellen verbinden",
+    "split-cells":"Zellen teilen",
     "delete-table": "Tabelle löschen",
 
     /// link
@@ -125,4 +127,16 @@ export const de =  {
     "ai-optimization": "Optimierung",
     "ai-proofreading": "Korrekturlesen",
     "ai-translation": "Übersetzung",
+    
+    ///find and replace
+    "find": "suchen",
+    "replace": "ersetzen",
+    "find-replace": "suchen und ersetzen",
+    "search-placeholder": "Bitte Suchinhalt eingeben",
+    "replace-placeholder": "Bitte Ersetzinhalt eingeben",
+    "match-case": "Groß-/Kleinschreibung beachten",
+    "find-previous": "vorherige",
+    "find-next": "nächste",
+    "replace-all": "alle ersetzen",
+
 }

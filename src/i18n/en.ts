@@ -84,6 +84,8 @@ export const en =  {
     "merge-cells-vertical":"Merge cells",
     "split-cells-horizontal":"Split cells",
     "split-cells-vertical":"Split cells",
+    "merge-cells":"Merge cells",
+    "split-cells":"Split cells",
     "delete-table":"Delete table",
 
     ///link
@@ -130,5 +132,15 @@ export const en =  {
     "ai-proofreading":"Proofreading",
     "ai-translation":"Translation",
 
+    ///find and replace
+    "find":"find",
+    "replace":"replace",
+    "find-replace":"find and replace",
+    "search-placeholder":"please input search content",
+    "replace-placeholder":"please input replace content",
+    "match-case":"match case",
+    "find-previous":"previous",
+    "find-next":"next",
+    "replace-all":"replace all",
 
 }

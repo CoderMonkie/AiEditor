@@ -83,6 +83,8 @@ export const hi = {
     "merge-cells-vertical": "सेलों को लंबवत मिलाएं",
     "split-cells-horizontal": "सेलों को क्षैतिज विभाजित करें",
     "split-cells-vertical": "सेलों को लंबवत विभाजित करें",
+    "merge-cells": "सेलों को मिलाएं",
+    "split-cells": "सेलों को विभाजित करें",
     "delete-table": "तालिका हटाएं",
 
     ////link
@@ -120,4 +122,16 @@ export const hi = {
     "ai-optimization": "AI अनुकूलन",
     "ai-proofreading": "AI प्रूफरीडिंग",
     "ai-translation": "AI अनुवाद",
+
+    ///find and replace
+    "find": "खोजें",
+    "replace": "बदलें",
+    "find-replace": "खोजें और बदलें",
+    "search-placeholder": "कृपया खोज सामग्री दर्ज करें",
+    "replace-placeholder": "कृपया बदलने की सामग्री दर्ज करें",
+    "match-case": "बड़े-छोटे अक्षरों का ध्यान रखें",
+    "find-previous": "पिछला",
+    "find-next": "अगला",
+    "replace-all": "सभी बदलें",
+
 }

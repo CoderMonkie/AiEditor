@@ -46,6 +46,7 @@
   border: 1px solid;
   border-color: var(--aie-border-color);
   background: var(--aie-bg-color);
+  position: relative;
 
   *, ::before, ::after {
     box-sizing: content-box;
@@ -151,6 +152,23 @@
   }
 
   .aie-ai-panel-body {
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+  
+      .icon-btn-close {
+        display: flex;
+        padding: 4px;
+        margin: 4px 8px;
+        border-radius: 4px;
+        cursor: pointer;
+        &:hover {
+          background-color: var(--aie-menus-item-hover-color);
+        }
+      }
+    }
+  
     width: 500px;
     border: solid 1px;
     border-color: var(--aie-popover-border-color);
@@ -184,13 +202,18 @@
 
       .loader {
         position: absolute;
-        top: 10px;
-        right: 10px;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: #fff;
+        pointer-events: none;
+        opacity: 0.5;
         display: none;
 
         svg {
           width: 16px;
-          color: #999;
+          color: #000;
           animation: rotate 2s linear infinite;
           @keyframes rotate {
             from {
@@ -200,12 +223,19 @@
               transform: rotate(360deg);
             }
           }
+          position:absolute;
+          top: 50%;
+          left: 50%;
+          width: 20px;
+          height: 20px;
+          transform: translate(-50%, -50%);
         }
       }
 
       textarea {
         width: 100%;
         height: 100%;
+        min-height: 100px;
         max-height: 300px;
         padding: 15px;
         box-sizing: border-box;
@@ -265,14 +295,52 @@
         svg {
           fill: #fff;
           width: 18px;
-          margin-left: 2px;
-          margin-top: 2px;
+          margin: 6px;
         }
       }
 
       button:hover {
-        background: var(--aie-menus-item-hover-color);
+        // background: var(--aie-menus-item-hover-color);
+        opacity: .9;
         cursor: pointer;
+      }
+    }
+
+    &-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 12px;
+      padding-right: 16px;
+
+      div#actionHide,
+      div#actionReplace {
+        display: flex;
+        align-items: center;
+        margin: 0 4px 0 0;
+        color: dimgray;
+        cursor: pointer;
+        padding:4px 8px;
+        border-radius: 4px;
+
+        &:hover{
+          background-color: #efefef;
+        }
+      }
+
+      button#actionInsert {
+        background: #609eec;
+        border:none;
+        color: #fff;
+        cursor: pointer;
+        padding: 4px 12px;
+        font-size: 14px;
+        border-radius: 3px;
+        display: flex;
+        align-items: center;
+        &:hover {
+         opacity: .9; 
+        }
       }
     }
   }
@@ -671,6 +739,10 @@
         cursor: pointer;
       }
 
+      &.disabled {
+        cursor: not-allowed;
+        opacity: 0.5;
+      }
     }
 
     .emoji-cells {
@@ -1291,8 +1363,17 @@
 
 }
 
-
-
+.aie-search-result {
+  background-color: #ffd90080;
+}
+.aie-search-result-current{
+  background-color: #0dff0080;
+}
+find-and-replace {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+}
 
 
 

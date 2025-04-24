@@ -5,6 +5,7 @@ import {EditorView} from "@tiptap/pm/view";
 import {AiEditorOptions} from "../../core/AiEditor.ts";
 import {TableCellBackgroundColor} from "../menus/TableCellBackgroundColor.ts";
 import tippy from "tippy.js";
+import { getSelectedRect } from "../../extensions/TableExt.ts";
 
 export class TableBubbleMenu extends AbstractBubbleMenu {
     constructor() {
@@ -15,15 +16,15 @@ export class TableBubbleMenu extends AbstractBubbleMenu {
                 title: "insert-column-left",
                 icon: "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\"><path fill=\"none\" d=\"M0 0h24v24H0z\"></path><path d=\"M20 3C20.5523 3 21 3.44772 21 4V20C21 20.5523 20.5523 21 20 21H14C13.4477 21 13 20.5523 13 20V4C13 3.44772 13.4477 3 14 3H20ZM19 5H15V19H19V5ZM6 7C8.76142 7 11 9.23858 11 12C11 14.7614 8.76142 17 6 17C3.23858 17 1 14.7614 1 12C1 9.23858 3.23858 7 6 7ZM7 9H5V10.999L3 11V13L5 12.999V15H7V12.999L9 13V11L7 10.999V9Z\"></path></svg>",
                 onClick: ({innerEditor: editor}) => {
-                    editor?.chain().focus().addColumnBefore().run()
+                    editor?.chain().focus().addColumnsBefore().run();
                 }
             },
             {
                 id: "insert-column-right",
                 title: "insert-column-right",
-                icon: "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\"><path fill=\"none\" d=\"M0 0h24v24H0z\"></path><path d=\"M10 3C10.5523 3 11 3.44772 11 4V20C11 20.5523 10.5523 21 10 21H4C3.44772 21 3 20.5523 3 20V4C3 3.44772 3.44772 3 4 3H10ZM9 5H5V19H9V5ZM18 7C20.7614 7 23 9.23858 23 12C23 14.7614 20.7614 17 18 17C15.2386 17 13 14.7614 13 12C13 9.23858 15.2386 7 18 7ZM19 9H17V10.999L15 11V13L17 12.999V15H19V12.999L21 13V11L19 10.999V9Z\"></path></svg>",
+                icon: "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\"><path fill=\"none\" d=\"M0 0h24v24H0z\"></path><path d=\"M10 3C10.5523 3 11 3.44772 11 4V20C11 20.5523 10.5523 21 10 21H4C3.44772 21 3 20.5523 3 20V4C3 3.44772 3.44772 3 4 3H20ZM11 5H5V19H11V5ZM18 7C20.7614 7 23 9.23858 23 12C23 14.7614 20.7614 17 18 17C15.2386 17 13 14.7614 13 12C13 9.23858 15.2386 7 18 7ZM19 9H17V10.999L15 11V13L17 12.999V15H19V12.999L21 13V11L19 10.999V9Z\"></path></svg>",
                 onClick: ({innerEditor: editor}) => {
-                    editor?.chain().focus().addColumnAfter().run()
+                    editor?.chain().focus().addColumnsAfter().run();
                 }
             },
             {
@@ -31,7 +32,7 @@ export class TableBubbleMenu extends AbstractBubbleMenu {
                 title: "insert-row-top",
                 icon: "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\"><path fill=\"none\" d=\"M0 0h24v24H0z\"></path><path d=\"M20 13C20.5523 13 21 13.4477 21 14V20C21 20.5523 20.5523 21 20 21H4C3.44772 21 3 20.5523 3 20V14C3 13.4477 3.44772 13 4 13H20ZM19 15H5V19H19V15ZM12 1C14.7614 1 17 3.23858 17 6C17 8.76142 14.7614 11 12 11C9.23858 11 7 8.76142 7 6C7 3.23858 9.23858 1 12 1ZM13 3H11V4.999L9 5V7L11 6.999V9H13V6.999L15 7V5L13 4.999V3Z\"></path></svg>",
                 onClick: ({innerEditor: editor}) => {
-                    editor?.chain().focus().addRowBefore().run()
+                    editor?.chain().focus().addRowsBefore().run();
                 }
             },
             {
@@ -39,7 +40,7 @@ export class TableBubbleMenu extends AbstractBubbleMenu {
                 title: "insert-row-bottom",
                 icon: "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\"><path fill=\"none\" d=\"M0 0h24v24H0z\"></path><path d=\"M12 13C14.7614 13 17 15.2386 17 18C17 20.7614 14.7614 23 12 23C9.23858 23 7 20.7614 7 18C7 15.2386 9.23858 13 12 13ZM13 15H11V16.999L9 17V19L11 18.999V21H13V18.999L15 19V17L13 16.999V15ZM20 3C20.5523 3 21 3.44772 21 4V10C21 10.5523 20.5523 11 20 11H4C3.44772 11 3 10.5523 3 10V4C3 3.44772 3.44772 3 4 3H20ZM5 5V9H19V5H5Z\"></path></svg>",
                 onClick: ({innerEditor: editor}) => {
-                    editor?.chain().focus().addRowAfter().run()
+                    editor?.chain().focus().addRowsAfter().run();
                 }
             },
             {
@@ -75,6 +76,14 @@ export class TableBubbleMenu extends AbstractBubbleMenu {
                 }
             },
             {
+                id: "merge-cells",
+                title: "merge-cells",
+                icon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="none" d="M0 0h24v24H0z"></path><path d="M21 20C21 20.5523 20.5523 21 20 21H4C3.44772 21 3 20.5523 3 20V4C3 3.44772 3.44772 3 4 3H20C20.5523 3 21 3.44772 21 4V20ZM19 11V5H13.001V7H15L12 10L9 7H11V5H5V11H7V9L10 12L7 15V13H5V19H11V17H9L12 14L15 17H13.001V19H19V13H17V15L14 12L17 9V10.999H19V5Z"></path></svg>`,
+                onClick: ({innerEditor: editor}) => {
+                    editor?.chain().focus().mergeCells().run()
+                }
+            },
+            {
                 id: "split-cells-horizontal",
                 title: "split-cells-horizontal",
                 icon: "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\"><path fill=\"none\" d=\"M0 0h24v24H0z\"></path><path d=\"M20 3C20.5523 3 21 3.44772 21 4V20C21 20.5523 20.5523 21 20 21H4C3.44772 21 3 20.5523 3 20V4C3 3.44772 3.44772 3 4 3H20ZM11 5H5V19H11V15H13V19H19V5H13V9H11V5ZM15 9L18 12L15 15V13H9V15L6 12L9 9V11H15V9Z\"></path></svg>",
@@ -88,6 +97,14 @@ export class TableBubbleMenu extends AbstractBubbleMenu {
                 icon: "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\"><path fill=\"none\" d=\"M0 0h24v24H0z\"></path><path d=\"M20 3C20.5523 3 21 3.44772 21 4V20C21 20.5523 20.5523 21 20 21H4C3.44772 21 3 20.5523 3 20V4C3 3.44772 3.44772 3 4 3H20ZM19 5H5V10.999L9 11V13H5V19H19V13H15V11L19 10.999V5ZM12 6L15 9H13V15H15L12 18L9 15H11V9H9L12 6Z\"></path></svg>",
                 onClick: ({innerEditor: editor}) => {
                     editor?.chain().focus().splitCell().run()
+                }
+            },
+            {
+                id: "split-cells",
+                title: "split-cells",
+                icon: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="none" d="M0 0h24v24H0z"></path><path d="M20 3C20.5523 3 21 3.44772 21 4V20C21 20.5523 20.5523 21 20 21H4C3.44772 21 3 20.5523 3 20V4C3 3.44772 3.44772 3 4 3H20ZM19 5H5V19H19V5ZM12 6L15 9H13V15H15L12 18L9 15H11V9H9L12 6ZM15 9L18 12L15 15V13H9V15L6 12L9 9V11H15V9Z"></path></svg>`,
+                onClick: ({innerEditor: editor}) => {
+                    editor?.chain().focus().splitCells().run()
                 }
             },
             {
@@ -192,41 +209,57 @@ export class TableBubbleMenu extends AbstractBubbleMenu {
         if (selection instanceof CellSelection) {
             if (this.isAllTableSelected(selection)) {
                 this.showItems(["delete"])
-            } else if (this.isOneCellSelected(selection)) {
+            } else {
                 const showIds = [
                     "insert-column-left", "insert-column-right", "delete-column",
                     "insert-row-top", "insert-row-bottom", "delete-row",
-                    "cell-background-color" // 新增背景色按钮
                 ];
-                if (editor.can().splitCell()) {
-                    const nodeDOM = view.nodeDOM(selection.$anchorCell.pos) as HTMLTableRowElement;
-                    const colspan = nodeDOM.getAttribute("colspan");
-                    const rowspan = nodeDOM.getAttribute("rowspan");
-                    if (colspan && Number(colspan) > 1) {
-                        showIds.push("split-cells-horizontal")
-                    } else if (rowspan && Number(rowspan) > 1) {
-                        showIds.push("split-cells-vertical")
+                // select one original cell or a merged-cell
+                if (this.isOneCellSelected(selection)){
+                    if (editor.can().splitCell()) {
+                        const nodeDOM = view.nodeDOM(selection.$anchorCell.pos) as HTMLTableRowElement;
+                        const colspan = parseInt(nodeDOM.getAttribute("colspan") || "1");
+                        const rowspan = parseInt(nodeDOM.getAttribute("rowspan") || "1");
+                        if (colspan > 1 && rowspan > 1) {
+                            showIds.push("split-cells")
+                        } else if (colspan > 1) {
+                            showIds.push("split-cells-horizontal")
+                        } else if (rowspan > 1) {
+                            showIds.push("split-cells-vertical")
+                        }
+                    }
+                } else {
+                    const {cols, rows} = getSelectedRect(editor.state);
+                    if (rows.span > 1 && cols.span > 1) {
+                        showIds.push("merge-cells");
+                    } else if(rows.span > 1 && cols.span === 1) {
+                        showIds.push("merge-cells-vertical");
+                    } else if (rows.span === 1 && cols.span > 1) {
+                        showIds.push("merge-cells-horizontal");
+                    }
+
+                    // 检查选区中是否有合并过的单元格
+                    let hasMergedCell = false;
+                    selection.forEachCell((cell) => {
+                        if (cell.attrs.colspan > 1 || cell.attrs.rowspan > 1) {
+                            hasMergedCell = true;
+                        }
+                    });
+                    if (hasMergedCell) {
+                        showIds.push("split-cells");
                     }
                 }
-                this.showItems(showIds)
-            } else if (this.isColumnSelected(selection, view)) {
-                this.showItems([
-                    "insert-column-left", "insert-column-right", "delete-column",
-                    "merge-cells-vertical", "cell-background-color" // 新增
-                ])
-            } else if (this.isRowSelected(selection, view)) {
-                this.showItems([
-                    "insert-row-top", "insert-row-bottom", "delete-row",
-                    "merge-cells-horizontal", "cell-background-color" // 新增
-                ])
-            } else {
-                this.showItems(["merge-cells-horizontal", "cell-background-color"]) // 新增
+
+                showIds.push("cell-background-color");
+
+                this.showItems(showIds);
             }
+            
         } else {
             this.showItems([
                 "insert-column-left", "insert-column-right", "delete-column",
                 "insert-row-top", "insert-row-bottom", "delete-row",
-                "cell-background-color" // 新增
+                "cell-background-color"
             ])
         }
     }

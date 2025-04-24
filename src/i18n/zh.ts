@@ -83,6 +83,8 @@ export const zh  =  {
     "merge-cells-vertical":"合并单元格",
     "split-cells-horizontal":"解除合并单元格",
     "split-cells-vertical":"解除合并单元格",
+    "merge-cells":"合并单元格",
+    "split-cells":"解除合并单元格",
     "delete-table":"删除表格",
 
     ////link
@@ -126,5 +128,16 @@ export const zh  =  {
     "ai-optimization":"AI 优化",
     "ai-proofreading":"AI 校对",
     "ai-translation":"AI 翻译",
+
+    ///find and replace
+    "find":"查找",
+    "replace":"替换",
+    "find-replace":"查找替换",
+    "search-placeholder":"请输入查找内容",
+    "replace-placeholder":"请输入替换内容",
+    "match-case":"区分大小写",
+    "find-previous":"上一个",
+    "find-next":"下一个",
+    "replace-all":"全部替换",
 
 }
