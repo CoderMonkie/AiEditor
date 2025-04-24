@@ -48,6 +48,8 @@ import {initToolbarKeys} from "../util/initToolbarKeys.ts";
 import { defaultToolbarKeys } from "./DefaultToolbarKeys.ts";
 import {Download} from "./menus/Download";
 
+import {AiPanel} from "./ai-panel/ai-panel.ts";
+
 defineCustomElement('aie-undo', Undo);
 defineCustomElement('aie-redo', Redo);
 defineCustomElement('aie-brush', Painter);
@@ -91,6 +93,8 @@ defineCustomElement('aie-emoji', Emoji);
 defineCustomElement('aie-ai', Ai);
 defineCustomElement('aie-group', Group);
 defineCustomElement('aie-find-replace', FindReplaceIconBtn);
+
+defineCustomElement("aie-ai-panel", AiPanel);
 
 export type MenuButtonOptions = {
     key: string,
