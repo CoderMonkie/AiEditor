@@ -46,6 +46,8 @@ import {Group} from "./menus/Group.ts";
 import {initToolbarKeys} from "../util/initToolbarKeys.ts";
 import { defaultToolbarKeys } from "./DefaultToolbarKeys.ts";
 
+import {AiPanel} from "./ai-panel/ai-panel.ts";
+
 defineCustomElement('aie-undo', Undo);
 defineCustomElement('aie-redo', Redo);
 defineCustomElement('aie-brush', Painter);
@@ -87,6 +89,8 @@ defineCustomElement('aie-printer', Printer);
 defineCustomElement('aie-emoji', Emoji);
 defineCustomElement('aie-ai', Ai);
 defineCustomElement('aie-group', Group);
+
+defineCustomElement("aie-ai-panel", AiPanel);
 
 export type MenuButtonOptions = {
     key: string,

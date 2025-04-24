@@ -16,11 +16,11 @@ export const getAIBoundingClientRect = (editor: Editor) => {
         let left = selectRect.left;
 
         //最后一行为空白内容
-        if (selectRect.width == 0) {
-            const domRect = view.dom.getBoundingClientRect();
-            left = domRect.left + domRect.right / 2;
-            height -= 50;
-        }
+        // if (selectRect.width == 0) {
+        //     const domRect = view.dom.getBoundingClientRect();
+        //     left = domRect.left + domRect.right / 2;
+        //     height -= 50;
+        // }
 
         return {
             ...selectRect,

@@ -57,7 +57,7 @@ export abstract class AiModel {
         }
     }
 
-    protected readonly defaultAiRole = "你是一个专业的 AI 写作助手，你的任务是根据用户提供的内容和要求，生成高质量的对应领域相应风格的写作内容。";
+    protected readonly defaultAiRole = "你是一个专业的 AI 写作助手且精通多国语言互译，作为全领域创作总监，拥有20多年跨学科写作经验，你的任务是根据用户提供的内容和要求，生成高质量的对应领域相应风格的写作内容。";
 
     protected buildStructuredPrompt(selectedText: string, originalPrompt: string): string {
         const options = this.editor.aiEditor.options;
@@ -83,22 +83,30 @@ export abstract class AiModel {
 ${chatConfig.role || this.defaultAiRole}
 </role>
 
+<references>
+${chatConfig.references && chatConfig.references.length ? maybeArrayStringFormat(chatConfig.references?.map(n=>n.content)) : ""}
+</references>
+
 <context>
 ${fullContentMd}
 </context>
 
-<reference>
-${maybeArrayStringFormat(chatConfig.reference) || ""}
-</reference>
+<content>
+${selectedText}
+</content>
 
 <format>
 ${maybeArrayStringFormat(chatConfig.format) || ""}
 </format>
 
+<goal>
+${originalPrompt}
+</goal>
+
 <constraints>
-- reference 为参考文档，如有提供请参考
-- context 为当前已完写的全文内容，如果有提供请参考
-- content 为当前写作上下文，如果没有则使用全文内容
+- references 标签为参考文档，如有提供请阅读并参考其内容
+- context 标签为当前已完写的全文内容，如果有提供请阅读并参考
+- content 标签为 goal 的关联内容，如果没有则使用 context 中的全文内容
 - 除翻译任务以外请保持语种一致
 - 灵活运用 markdown 格式输出内容
 - 恰当地灵活运用 Mermaid 或 PlantUML 等工具绘制各种相关图表
@@ -106,13 +114,6 @@ ${maybeArrayStringFormat(chatConfig.format) || ""}
 ${chatConfig.constraints ? '- 另外，要求：' + maybeArrayStringFormat(chatConfig.constraints, '  ') : ''}
 </constraints>
 
-<goal>
-${originalPrompt}
-</goal>
-
-<content>
-${selectedText}
-</content>
         `.trim();
     }
 
