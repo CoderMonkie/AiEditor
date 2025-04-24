@@ -2,6 +2,52 @@
 import {AiEditor} from "./core/AiEditor.ts";
 // import { config } from "./spark.ts";
 // import {OpenaiModelConfig} from "./ai/openai/OpenaiModelConfig.ts";
+
+
+const defaultAiRole = "你是资深技术文档工程师、IT专家精通所有研发阶段的各种文档设计和编写，拥有丰富的文档写作经验，对文档的结构、内容、格式、层级、标题、段落、图表、表格、公式、代码等方面都有深入的理解和掌握。";
+const aiRoles = {
+  "default": defaultAiRole,
+  "产品经理": "你是资深产品经理，拥有丰富的产品设计经验，对产品的需求分析、功能设计、界面设计、用户体验等方面都有深入的理解和掌握。",
+  "UI设计师": "你是资深UI设计师，拥有丰富的UI设计经验，对UI的布局、色彩、字体、图标等方面都有深入的理解和掌握。",
+  // 添加更多角色... ,
+}
+
+// TODO
+const refList = [
+    {
+        "title": "1-新能源汽车一季度销量喜人，同比增加了20%，达到惊人的xxx万辆，进一步扩大了占比，其中出口贡献了一半多的销量，面对灌水大战，展现了巨大的全球竞争力。",
+        "content": "<h2>1-</h2>新能源汽车一季度销量喜人，同比增加了20%，达到惊人的xxx万辆，进一步扩大了占比，其中出口贡献了一半多的销量，面对灌水大战，展现了巨大的全球竞争力。",
+        "link": "https://www.baidu.com",
+    },
+    {
+        "title": "2-新能源汽车一季度销量喜人，同比增加了20%，达到惊人的xxx万辆，进一步扩大了占比，其中出口贡献了一半多的销量，面对灌水大战，展现了巨大的全球竞争力。",
+        "content": "<h2>2-</h2>新能源汽车一季度销量喜人，同比增加了20%，达到惊人的xxx万辆，进一步扩大了占比，其中出口贡献了一半多的销量，面对灌水大战，展现了巨大的全球竞争力。",
+        "link": "https://www.baidu.com",
+    },
+    {
+        "title": "3-新能源汽车一季度销量喜人，同比增加了20%，达到惊人的xxx万辆，进一步扩大了占比，其中出口贡献了一半多的销量，面对灌水大战，展现了巨大的全球竞争力。",
+        "content": "3-新能源汽车一季度销量喜人，同比增加了20%，达到惊人的xxx万辆，进一步扩大了占比，其中出口贡献了一半多的销量，面对灌水大战，展现了巨大的全球竞争力。",
+        "link": "https://www.baidu.com",
+    },
+    {
+        "title": "4-新能源汽车一季度销量喜人，同比增加了20%，达到惊人的xxx万辆，进一步扩大了占比，其中出口贡献了一半多的销量，面对灌水大战，展现了巨大的全球竞争力。",
+        "content": "4-新能源汽车一季度销量喜人，同比增加了20%，达到惊人的xxx万辆，进一步扩大了占比，其中出口贡献了一半多的销量，面对灌水大战，展现了巨大的全球竞争力。"
+    },
+    {
+        "title": "5-新能源汽车一季度销量喜人，同比增加了20%，达到惊人的xxx万辆，进一步扩大了占比，其中出口贡献了一半多的销量，面对灌水大战，展现了巨大的全球竞争力。",
+        "content": "5-新能源汽车一季度销量喜人，同比增加了20%，达到惊人的xxx万辆，进一步扩大了占比，其中出口贡献了一半多的销量，面对灌水大战，展现了巨大的全球竞争力。"
+    },
+    {
+        "title": "6-新能源汽车一季度销量喜人，同比增加了20%，达到惊人的xxx万辆，进一步扩大了占比，其中出口贡献了一半多的销量，面对灌水大战，展现了巨大的全球竞争力。",
+        "content": "6-新能源汽车一季度销量喜人，同比增加了20%，达到惊人的xxx万辆，进一步扩大了占比，其中出口贡献了一半多的销量，面对灌水大战，展现了巨大的全球竞争力。"
+    },
+    {
+        "title": "7-新能源汽车一季度销量喜人，同比增加了20%，达到惊人的xxx万辆，进一步扩大了占比，其中出口贡献了一半多的销量，面对灌水大战，展现了巨大的全球竞争力。",
+        "content": "7-新能源汽车一季度销量喜人，同比增加了20%，达到惊人的xxx万辆，进一步扩大了占比，其中出口贡献了一半多的销量，面对灌水大战，展现了巨大的全球竞争力。"
+    },
+]
+
+
 // @ts-ignore
 window.aiEditor = new AiEditor({
     element: "#aiEditor",
@@ -87,45 +133,62 @@ window.aiEditor = new AiEditor({
     // },
     ai: {
         models: {
-            custom: {
-                url: "https://ai.gitee.com/v1/chat/completions",
-                headers:{},
-                // headers: () => {
-                //     debugger
-                //     return {
-                //         Authorization: "Bearer xxxx",
-                //         'Content-Type': "application/json",
-                //         'X-Failover-Enabled': true,
-                //     }
-                // },
-                wrapPayload: (message: string) => {
-                    const messageObj = {
-                        model: "QwQ-32B",
-                        max_tokens: 2048,
-                        temperature: 0.7,
-                        top_p: 0.8,
-                        top_k: 50,
-                        stream: true,
-                        messages: [
-                            {
-                                role: "user",
-                                content: message,
-                            }
-                        ]
-                    }
+            // custom: {
+            //     url: "https://ai.gitee.com/v1/chat/completions",
+            //     headers:{},
+            //     // headers: () => {
+            //     //     debugger
+            //     //     return {
+            //     //         Authorization: "Bearer xxxx",
+            //     //         'Content-Type': "application/json",
+            //     //         'X-Failover-Enabled': true,
+            //     //     }
+            //     // },
+            //     wrapPayload: (message: string) => {
+            //         const messageObj = {
+            //             model: "QwQ-32B",
+            //             max_tokens: 2048,
+            //             temperature: 0.7,
+            //             top_p: 0.8,
+            //             top_k: 50,
+            //             stream: true,
+            //             messages: [
+            //                 {
+            //                     role: "user",
+            //                     content: message,
+            //                 }
+            //             ]
+            //         }
 
-                    return JSON.stringify(messageObj)
-                },
-                parseMessage: (message: string) => {
-                    const messageObject = JSON.parse(message);
-                    return {
-                        role: "assistant",
-                        content: messageObject.choices[0].delta?.content || "",
-                        // index: number,
-                        // //0 代表首个文本结果；1 代表中间文本结果；2 代表最后一个文本结果。
-                        // status: 0|1|2,
-                    }
-                },
+            //         return JSON.stringify(messageObj)
+            //     },
+            //     parseMessage: (message: string) => {
+            //         const messageObject = JSON.parse(message);
+            //         return {
+            //             role: "assistant",
+            //             content: messageObject.choices[0].delta?.content || "",
+            //             // index: number,
+            //             // //0 代表首个文本结果；1 代表中间文本结果；2 代表最后一个文本结果。
+            //             // status: 0|1|2,
+            //         }
+            //     },
+            // }
+
+            openai: {
+                customUrl: "https://open.bigmodel.cn/api/paas/v4/chat/completions",
+                model: "glm-4-flash",
+                apiKey: "f47f3425851548d58a1c719145c47430.jSKg42xEv8htrat0",
+            },
+        },
+        chatConfig: {
+            role: aiRoles.default,
+            // reference: "",
+            // format: "请用 markdown 格式返回内容",
+            // enableReference: true,
+            addReference: (cb)=>{
+                setTimeout(()=>{
+                    cb(refList)
+                })
             }
         },
         // bubblePanelEnable:false,
