@@ -247,7 +247,7 @@ export class AiPanel extends HTMLElement {
         });
 
         shadow.querySelector(".icon-btn-close")?.addEventListener("click", this.forceHideAiPanel.bind(this)); // Close always hides
-        shadow.querySelector("#actionHide")?.addEventListener("click", this.hideAiPanel.bind(this)); // Cancel respects pin
+        shadow.querySelector("#actionHide")?.addEventListener("click", this.forceHideAiPanel.bind(this)); // Cancel respects pin
 
         // Add listener for pin icon
         shadow.querySelector(".icon-btn-pin")?.addEventListener("click", this.togglePin.bind(this));
@@ -256,8 +256,7 @@ export class AiPanel extends HTMLElement {
             const textarea = shadow.querySelector("textarea");
             if (textarea?.value && this.editor) {
                 this.editor.insertMarkdown(textarea.value);
-                this.hideAiPanel(); // Respect pin state
-                this.tippyInstance?.show();
+                this.forceHideAiPanel();
             }
         });
 
@@ -267,10 +266,7 @@ export class AiPanel extends HTMLElement {
                 const { state: { selection, doc } } = this.editor;
                 this.editor.commands.setTextSelection(TextSelection.create(doc, selection.to));
                 this.editor.insertMarkdown(textarea.value);
-                this.hideAiPanel(); // Respect pin state
-                if (selection.from !== selection.to) {
-                    this.tippyInstance?.show();
-                }
+                this.forceHideAiPanel();
             }
         });
 
