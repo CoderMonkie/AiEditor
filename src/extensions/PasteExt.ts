@@ -48,13 +48,34 @@ export const PasteExt = Extension.create({
                             const tempDoc = parser.parseFromString(html, 'text/html');
                             // process excel paste
                             const table = tempDoc.querySelector("table");
-                            if (text && table && isExcelDocument(tempDoc)) {
-                                this.editor.commands.insertContent(table!.outerHTML, {
-                                    parseOptions: {
-                                        preserveWhitespace: false,
+                            // check if current cursor is inside  a table
+                            let isInsideTable = false;
+                            const $pos = slcn.$from;
+                            for (let depth = $pos.depth; depth >= 0; depth--) {
+                                const node = $pos.node(depth);
+                                if (node.type.name === 'table' || node.type.name === 'tableRow' || node.type.name === 'tableCell') {
+                                    isInsideTable = true;
+                                    break;
+                                }
+                            }
+
+                            if (text && table) {
+                                // process excel paste
+                                if (isExcelDocument(tempDoc)) {
+                                    if (isInsideTable) {
+                                        return false;
                                     }
-                                });
-                                return true;
+                                    this.editor.commands.insertContent(table!.outerHTML, {
+                                        parseOptions: {
+                                            preserveWhitespace: false,
+                                        }
+                                    });
+                                    return true;
+                                }
+                                // normal table paste
+                                if(isInsideTable) {
+                                    return false;
+                                }
                             }
 
                             // 处理标题的 ID
