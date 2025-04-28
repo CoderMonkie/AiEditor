@@ -46,20 +46,19 @@ export const PasteExt = Extension.create({
                         } else if (html) {
                             const parser = new DOMParser();
                             const tempDoc = parser.parseFromString(html, 'text/html');
-                            // process excel paste
                             const table = tempDoc.querySelector("table");
-                            // check if current cursor is inside  a table
-                            let isInsideTable = false;
-                            const $pos = slcn.$from;
-                            for (let depth = $pos.depth; depth >= 0; depth--) {
-                                const node = $pos.node(depth);
-                                if (node.type.name === 'table' || node.type.name === 'tableRow' || node.type.name === 'tableCell') {
-                                    isInsideTable = true;
-                                    break;
+                            if (table) {
+                                // check if current cursor is inside  a table
+                                let isInsideTable = false;
+                                const $pos = slcn.$from;
+                                for (let depth = $pos.depth; depth >= 0; depth--) {
+                                    const node = $pos.node(depth);
+                                    if (node.type.name === 'table' || node.type.name === 'tableRow' || node.type.name === 'tableCell') {
+                                        isInsideTable = true;
+                                        break;
+                                    }
                                 }
-                            }
 
-                            if (text && table) {
                                 // process excel paste
                                 if (isExcelDocument(tempDoc)) {
                                     if (isInsideTable) {
