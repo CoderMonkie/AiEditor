@@ -93,6 +93,14 @@ export const AI = {
             onHide(_) {
                 // Stop AI task when hiding
                 holder.aiClient?.stop();
+                setTimeout(() => {
+                    const { state: { selection } } = innerEditor;
+                    if (selection.from !== selection.to) {
+                        tippyInstance?.show();
+                    } else {
+                        innerEditor.commands.focus();
+                    }
+                },200);
             }
         });
 

@@ -82,11 +82,13 @@ export class AiPanel extends HTMLElement {
     setOptions(options: { holder: Holder, aiBubbleMenuItems: AIBubbleMenuItem[] }) {
         this.holder = options.holder;
         this.aiBubbleMenuItems = options.aiBubbleMenuItems;
-        // Re-render menu items if needed, or update existing ones
         this.renderMenuItems();
-        // Trigger auto-start if connected after options are set
-        if (this.isConnected && this.holder?.autoStart && this.holder?.autoPrompt) {
-            this.startChat(this.holder.autoPrompt);
+        if (this.isConnected) {
+            this.initDraggable();
+            if (this.holder?.autoStart && this.holder?.autoPrompt) {
+                this.startChat(this.holder.autoPrompt);
+            }
+            this.shadowRoot?.querySelector<HTMLInputElement>("#prompt")?.focus();
         }
     }
 
@@ -384,15 +386,8 @@ export class AiPanel extends HTMLElement {
         if (this.pinned) return; // Don't hide if pinned
 
         this.aiPanelInstance?.hide();
-        if (!this.editor) return;
-        const { state: { selection } } = this.editor;
-        if (selection.from !== selection.to) {
-            this.tippyInstance?.show();
-        } else {
-            setTimeout(() => {
-                this.editor?.aiEditor.focus();
-            });
-        }
+        this.editor?.aiEditor.focus();
+        this.remove();
     }
 
     // force hide, ignoring pin state (used by close button)
@@ -400,13 +395,10 @@ export class AiPanel extends HTMLElement {
         e?.stopPropagation();
         e?.preventDefault();
         this.pinned = false; // Unpin when closing
-        this.updatePinIcon();
+
         this.aiPanelInstance?.hide();
-        if (!this.editor) return;
-        const { state: { selection } } = this.editor;
-        if (selection.from !== selection.to) {
-            this.tippyInstance?.show();
-        }
+        this.editor?.aiEditor.focus();
+        this.remove();
     }
 
     // toggle pin state
