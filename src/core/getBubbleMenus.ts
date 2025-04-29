@@ -70,6 +70,10 @@ const createTextSelectionBubbleMenu = (aiEditor: AiEditor) => {
             if (!editor.isEditable) {
                 return false;
             }
+            const aiPanel = document.querySelector("aie-ai-panel");
+            if (aiPanel) {
+                return false;
+            }
             const {state: {selection}} = editor;
             return !selection.empty && getTextBetween(editor.state.doc, {
                     from: selection.from,
