@@ -24,6 +24,15 @@
             }
         }
 
+        function save() {
+            const data = aiEditor.getHtml();
+            console.log(data);
+            aiEditor.setContent('');
+            setTimeout(() => {
+                aiEditor.setContent(data);
+            }, 1000)
+        }
+
         var _hmt = _hmt || [];
         (function () {
             var hm = document.createElement("script");
@@ -55,6 +64,7 @@
     <a href="https://aieditor.dev" target="_blank">访问官网</a>
     <button onclick="changeTheme()">切换主题</button>
     <button onclick="changeLang()">切换语言</button>
+    <button onclick="save()">保存回显</button>
 </div>
 
 <div id="aiEditor" style="height: 820px;  margin: 20px"></div>
