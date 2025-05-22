@@ -239,7 +239,7 @@ export const organizeHTMLContent = (originalHtml: string) => {
                 html += element.innerHTML;
             } else {
                 // https://gitee.com/aieditor-team/aieditor/pulls/10
-                if (element.querySelector("img") && element.tagName !== "A") {
+                if (element.querySelector(":scope>img") && element.tagName !== "A") {
                     //return image element
                     html += element.innerHTML;
                 } else {
