@@ -15,7 +15,7 @@ const aiRoles = {
 // TODO
 const refList = [
     {
-        "title": "1-新能源汽车一季度销量喜人，同比增加了20%，达到惊人的xxx万辆，进一步扩大了占比，其中出口贡献了一半多的销量，面对灌水大战，展现了巨大的全球竞争力。",
+        "title": "<h1>title-h1\"</h1>1-新能源汽车一季度销量喜人，同比增加了20%，达到惊人的xxx万辆，进一步扩大了占比，其中出口贡献了一半多的销量，面对灌水大战，展现了巨大的全球竞争力。",
         "content": "<h2>1-</h2>新能源汽车一季度销量喜人，同比增加了20%，达到惊人的xxx万辆，进一步扩大了占比，其中出口贡献了一半多的销量，面对灌水大战，展现了巨大的全球竞争力。",
         "link": "https://www.baidu.com",
     },
@@ -184,7 +184,7 @@ window.aiEditor = new AiEditor({
             role: aiRoles.default,
             // reference: "",
             // format: "请用 markdown 格式返回内容",
-            // enableReference: true,
+            enableReference: true,
             addReference: (cb)=>{
                 setTimeout(()=>{
                     cb(refList)
