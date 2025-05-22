@@ -7,6 +7,7 @@
   font-size: 14px;
   font-family: inherit;
   pointer-events: none;
+  --aie-primary-color: #007eea;
 }
 .truncate{
   overflow: hidden;
@@ -55,7 +56,6 @@
   margin: 4px 0;
 }
 .icon-btn-pin.pinned {
-  color: var(--aie-primary-color, #609eec);
   background: #eaf3ff;
 }
 .icon-btn-pin:hover {
@@ -155,8 +155,8 @@ button#go {
   outline: none;
   border: none;
   border-radius: 50%;
-  padding: 0;
-  background: #609eec;
+  padding: 3px;
+  background: #f3f3f3;
   width: 30px;
   height: 30px;
   display: flex;
@@ -164,12 +164,13 @@ button#go {
   justify-content: center;
 }
 button#go svg {
-  fill: #fff;
-  width: 18px;
-  margin: 6px;
+  color: var(--aie-primary-color, #007eea);
+  width: 24px;
+  height: 24px;
+  margin:3px;
 }
 button#go:hover {
-  opacity: .9;
+  background: #dadada;
   cursor: pointer;
 }
 .aie-ai-panel-body-tips {
@@ -215,7 +216,7 @@ div#actionHide:hover, div#actionReplace:hover {
   background-color: #efefef;
 }
 button#actionInsert {
-  background: #609eec;
+  background: var(--aie-primary-color, #007eea);
   border: none;
   color: #fff;
   cursor: pointer;

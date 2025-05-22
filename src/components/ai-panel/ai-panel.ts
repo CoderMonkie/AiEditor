@@ -9,6 +9,7 @@ import { AiModelManager } from "../../ai/AiModelManager.ts";
 import { TextSelection } from "@tiptap/pm/state";
 // @ts-ignore
 import Draggabilly from 'draggabilly';
+import tippy from "tippy.js";
 
 // Define the pin SVG icon
 const pinIconSVG = `<svg t="1744960444014" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="17407" width="16" height="16" fill="currentColor"><path d="M692.992 125.098667l205.909333 205.909333a117.333333 117.333333 0 0 1-30.506666 187.904l-207.786667 103.893333a32 32 0 0 0-15.957333 18.176l-61.44 177.749334a53.333333 53.333333 0 0 1-88.106667 20.309333L362.666667 706.602667 173.226667 896H128v-45.226667l189.44-189.44-132.48-132.437333a53.333333 53.333333 0 0 1 20.309333-88.149333l177.749334-61.44a32 32 0 0 0 18.176-15.914667l103.893333-207.786667a117.333333 117.333333 0 0 1 187.946667-30.506666z m160.682667 251.136l-205.909334-205.909334a53.333333 53.333333 0 0 0-85.418666 13.866667l-103.893334 207.829333a96 96 0 0 1-54.528 47.786667l-161.664 55.893333 286.08 286.037334 55.808-161.664a96 96 0 0 1 47.786667-54.485334l207.872-103.936a53.333333 53.333333 0 0 0 13.866667-85.418666z" p-id="17408"></path></svg>`;
@@ -71,6 +72,19 @@ export class AiPanel extends HTMLElement {
             this.startChat(this.holder.autoPrompt);
         }
         this.shadowRoot?.querySelector<HTMLInputElement>("#prompt")?.focus();
+
+        // 添加 tippy 提示
+        const goButton = this.shadowRoot?.querySelector<HTMLButtonElement>("#go");
+        if (goButton) {
+            const tippyInstance = tippy(goButton, {
+                content: t('beginToCreate', "开始创作"),
+                placement: "top",
+                theme: 'aietip',
+                appendTo: () => this.closest(".aie-container")!,
+            });
+            // @ts-ignore
+            goButton._tippy = tippyInstance;
+        }
     }
 
     disconnectedCallback() {
@@ -335,7 +349,6 @@ export class AiPanel extends HTMLElement {
         // Add event delegation for reference list remove buttons
         shadow.querySelector(".ref-list")?.addEventListener("click", (e) => {
             const target = e.target as HTMLElement;
-            debugger
             // Check if the clicked element is a remove button or its child (svg)
             const removeBtn = target.closest(".ref-remove");
             if (removeBtn) {
@@ -369,15 +382,17 @@ export class AiPanel extends HTMLElement {
         });
         
         // Add click event listener for clear-all button
-        shadow.querySelector(".clear-all")?.addEventListener("click", (e) => {
-            this.refList = [];
-            this.editor!.aiEditor.options.ai!.chatConfig!.references = [];
-            const refListElement = shadow.querySelector(".ref-list");
-            if (refListElement) {
-                refListElement.innerHTML = '';
-            }
-            this.updateClearAllVisibility();
-        });
+        shadow.querySelector(".clear-all")?.addEventListener("click", ()=>this.clearAllReferences());
+    }
+
+    private clearAllReferences() {
+        this.refList = [];
+        this.editor!.aiEditor.options.ai!.chatConfig!.references = [];
+        const refListElement = this.shadowRoot!.querySelector(".ref-list");
+        if (refListElement) {
+            refListElement.innerHTML = '';
+        }
+        this.updateClearAllVisibility();
     }
 
     private hideAiPanel(e?: Event) {
@@ -385,6 +400,7 @@ export class AiPanel extends HTMLElement {
         e?.preventDefault();
         if (this.pinned) return; // Don't hide if pinned
 
+        this.clearAllReferences();
         this.aiPanelInstance?.hide();
         this.editor?.aiEditor.focus();
         this.remove();
@@ -395,7 +411,8 @@ export class AiPanel extends HTMLElement {
         e?.stopPropagation();
         e?.preventDefault();
         this.pinned = false; // Unpin when closing
-
+        
+        this.clearAllReferences();
         this.aiPanelInstance?.hide();
         this.editor?.aiEditor.focus();
         this.remove();
@@ -486,6 +503,8 @@ export class AiPanel extends HTMLElement {
             const footerActionsEl = this.shadowRoot?.querySelector<HTMLElement>(".aie-ai-panel-actions");
             const loaderEl = this.shadowRoot?.querySelector<HTMLElement>(".loader");
             const goButton = this.shadowRoot?.querySelector<HTMLButtonElement>("#go");
+            // @ts-ignore
+            const goButtonTippy = goButton?._tippy;
 
             aiModel.chat(selectedText, prompt, {
                 onStart: (aiClient) => {
@@ -495,12 +514,14 @@ export class AiPanel extends HTMLElement {
                     if (loaderEl) loaderEl.style.display = "block";
                     if (bodyContentEl) bodyContentEl.style.display = "block";
                     if (goButton) goButton.innerHTML = Svgs.aiPanelStop;
+                    if (goButtonTippy) goButtonTippy.setContent(t('cancelCreation', "停止"));
                     textarea.value = ''; // Clear previous content
                     textarea.style.height = '100px'; // Set initial height
                 },
                 onStop: () => {
                     this.holder!.aiClient = undefined;
                     if (goButton) goButton.innerHTML = Svgs.aiPanelStart;
+                    if (goButtonTippy) goButtonTippy.setContent(t('beginToCreate', "开始创作"));
                     if (bodyActionsEl) bodyActionsEl.style.display = "flex";
                     if (loaderEl) loaderEl.style.display = "none";
                     // Keep footer actions hidden until explicitly shown or panel reset
@@ -520,8 +541,8 @@ export class AiPanel extends HTMLElement {
                     textarea.style.height = textarea.scrollHeight + 'px';
                 },
                 onError: (error) => {
-                    console.error("AI Chat Error:", error);
-                    textarea.value = `Error: ${error.message || 'Failed to get response'}`;
+                    console.log(`AI Chat Error: ${error?.message || 'Failed to get response'}`);
+                    textarea.value = t('aiFailed', '创作生成失败。');
                     // Ensure UI resets correctly on error
                      this.holder!.aiClient = undefined;
                     if (goButton) goButton.innerHTML = Svgs.aiPanelStart;

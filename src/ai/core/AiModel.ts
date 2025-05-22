@@ -107,6 +107,7 @@ ${originalPrompt}
 - references 标签为参考文档，如有提供请阅读并参考其内容
 - context 标签为当前已完写的全文内容，如果有提供请阅读并参考
 - content 标签为 goal 的关联内容，如果没有则使用 context 中的全文内容
+- format 标签为新建文档时参考的内容格式，总结或者翻译等任务时不需要参考 format 标签
 - 除翻译任务以外请保持语种一致
 - 灵活运用 markdown 格式输出内容
 - 恰当地灵活运用 Mermaid 或 PlantUML 等工具绘制各种相关图表

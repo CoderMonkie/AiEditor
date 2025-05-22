@@ -20,6 +20,7 @@ export class WenXinAiModel extends AiModel {
         return new HttpStreamSocketClient({url, method: "POST"}, {
             onStart: listener.onStart,
             onStop: listener.onStop,
+            onError: listener.onError,
 
             onMessage: (bodyString: string) => {
                 const dataMatch = bodyString.match(/data:([\s\S]*)$/)

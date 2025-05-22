@@ -27,6 +27,7 @@ export class SparkAiModel extends AiModel {
         return new WebSocketClient(url, {
             onStart: listener.onStart,
             onStop: listener.onStop,
+            onError: listener.onError,
             // 星火内容解析 https://www.xfyun.cn/doc/spark/Web.html#_1-%E6%8E%A5%E5%8F%A3%E8%AF%B4%E6%98%8E
             onMessage: (bodyString: string) => {
                 const message = JSON.parse(bodyString) as any;

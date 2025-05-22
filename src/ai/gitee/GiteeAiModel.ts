@@ -30,6 +30,7 @@ export class GiteeAiModel extends AiModel {
         }, {
             onStart: listener.onStart,
             onStop: listener.onStop,
+            onError: listener.onError,
             onMessage: (bodyString: string) => {
                 let message = null;
                 try {

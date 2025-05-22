@@ -61,7 +61,7 @@ export class SseClient implements AiClient {
             }
         } catch (err) {
             console.error("error", err);
-            this.onError()
+            this.onError(err)
         } finally {
             this.onClose();
         }
@@ -84,11 +84,14 @@ export class SseClient implements AiClient {
         }
     }
 
-    protected onError() {
+    protected onError(error?: any) {
         this.isOpen = false;
         if (!this.isStop) {
             this.listener.onStop();
             this.isStop = true;
+        }
+        if (this.listener.onError){
+            this.listener.onError(error);
         }
     }
 }

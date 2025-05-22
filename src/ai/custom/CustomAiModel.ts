@@ -24,6 +24,7 @@ export class CustomAiModel extends AiModel {
         const aiClientListener: AiClientListener = {
             onStart: listener.onStart,
             onStop: listener.onStop,
+            onError: listener.onError,
             onMessage: (bodyString) => {
                 const config = this.aiModelConfig as CustomAiModelConfig;
                 const aiMessage = config.parseMessage?.(bodyString);
