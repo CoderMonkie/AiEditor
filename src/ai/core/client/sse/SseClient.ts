@@ -61,6 +61,10 @@ export class SseClient implements AiClient {
             }
         } catch (err) {
             console.error("error", err);
+            if(err instanceof Error && err.name==="AbortError"){
+                // 手动停止的情况无需错误处理
+                return;
+            }
             this.onError(err)
         } finally {
             this.onClose();
