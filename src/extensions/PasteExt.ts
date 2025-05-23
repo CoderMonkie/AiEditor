@@ -116,12 +116,20 @@ export const PasteExt = Extension.create({
                                 }
 
                                 if (html) {
-                                    this.editor.commands.insertContent(html);
+                                    this.editor.commands.insertContent(html, {
+                                        parseOptions: {
+                                            preserveWhitespace: false,
+                                        }
+                                    });
                                     return true;
                                 }
                             }
                             else {
-                                this.editor.commands.insertContent(html);
+                                this.editor.commands.insertContent(html, {
+                                    parseOptions: {
+                                        preserveWhitespace: false,
+                                    }
+                                });
                                 return true;
                             }
                         }

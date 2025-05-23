@@ -94,30 +94,31 @@ export const cleanHtml = (html: string, preserveTags: string[], removeAttrs: boo
 }
 
 
-export const isExcelDocument = (document: Document) => {
-    const attributeNames = document.documentElement.getAttributeNames();
+export const isExcelDocument = (tempDoc: Document) => {
+    const attributeNames = tempDoc.documentElement.getAttributeNames();
     if (attributeNames && attributeNames.length > 0) {
         for (let attributeName of attributeNames) {
-            const attribute = document.documentElement.getAttribute(attributeName);
-            if (attribute?.includes("microsoft") || attribute?.includes("excel")) {
+            const attribute = tempDoc.documentElement.getAttribute(attributeName);
+            // if (attribute?.includes("microsoft") || attribute?.includes("excel")) {
+            if (attribute?.includes("excel")) {
                 return true;
             }
         }
     }
 
-    let metaTags = document.getElementsByTagName('meta');
+    let metaTags = tempDoc.getElementsByTagName('meta');
     for (let metaTag of metaTags) {
         let nameAttr = metaTag.getAttribute('name');
         let contentAttr = metaTag.getAttribute('content');
         if (nameAttr && nameAttr.toLowerCase() === 'generator' && (
-            contentAttr?.includes("Microsoft")
-            || contentAttr?.includes('LibreOffice')
+            // contentAttr?.includes("Microsoft") ||
+            contentAttr?.includes('LibreOffice')
             || contentAttr?.includes('OpenOffice'))) {
             return true;
         }
     }
 
-    const innerHTML = document.body.innerHTML?.trim();
+    const innerHTML = tempDoc.body.innerHTML?.trim();
     return !!(innerHTML?.startsWith("<table") && innerHTML?.endsWith("</table>"));
 }
 
