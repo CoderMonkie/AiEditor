@@ -42,6 +42,11 @@ import {DefaultToolbarKey} from "../components/DefaultToolbarKeys.ts";
 import {htmlToMd, mdToHtml} from "../util/mdUtil.ts";
 import {organizeHTMLContent} from "../util/htmlUtil.ts";
 import {getSelectedHtml} from "../util/getSelectedHtml.ts"
+import {
+    AiEditorCollaborationOptions,
+    AiEditorCollaborationSession,
+    AiEditorCollaborationUser,
+} from "./Collaboration.ts";
 
 defineCustomElement('aie-header', Header);
 defineCustomElement('aie-footer', Footer);
@@ -193,6 +198,7 @@ export type AiEditorOptions = {
     textCounter?: (text: string) => number,
     poweredBy?: string | ((count:number) => string),
     ai?: AiGlobalConfig,
+    collaboration?: AiEditorCollaborationOptions,
     outline?: {
         visible?: boolean, // used to set whether to show the table of contents during initialization
         includeLevels?: number[], // used to set which heading levels to include, such as [1,2,3,4]
@@ -261,6 +267,8 @@ export class AiEditor {
 
     eventComponents: AiEditorEventListener[] = [];
 
+    collaborationSession?: AiEditorCollaborationSession;
+
     constructor(_: AiEditorOptions) {
         this.options = {...defaultOptions, ..._};
         this.initI18nAndInnerEditor();
@@ -298,6 +306,8 @@ export class AiEditor {
     }
 
     protected initInnerEditor() {
+        this.initCollaboration();
+
         const rootEl = typeof this.options.element === "string"
             ? document.querySelector(this.options.element) as Element : this.options.element;
 
@@ -333,7 +343,9 @@ export class AiEditor {
         this.eventComponents.push(this.footer);
 
         let content = this.options.content;
-        if (typeof content === "string") {
+        const collaborationEnabled = this.isCollaborationEnabled();
+
+        if (!collaborationEnabled && typeof content === "string") {
             if (this.options.contentIsMarkdown) {
                 content = mdToHtml(content)
             } else {
@@ -341,7 +353,7 @@ export class AiEditor {
             }
         }
 
-        if (this.options.contentRetention && this.options.contentRetentionKey) {
+        if (!collaborationEnabled && this.options.contentRetention && this.options.contentRetentionKey) {
             const cacheContent = localStorage.getItem(this.options.contentRetentionKey);
             if (cacheContent) {
                 try {
@@ -355,7 +367,7 @@ export class AiEditor {
         this.innerEditor = new InnerEditor(this, {
             ...this.options as any,
             element: this.mainEl,
-            content,
+            content: collaborationEnabled ? undefined : content,
             editable: this.options.editable,
             extensions: this.getExtensions(),
             onCreate: (props) => this.onCreate(props),
@@ -428,7 +440,12 @@ export class AiEditor {
             this.options.onChange(this);
         }
 
-        if (transEvent.transaction.docChanged && this.options.contentRetention && this.options.contentRetentionKey) {
+        if (
+            !this.isCollaborationEnabled()
+            && transEvent.transaction.docChanged
+            && this.options.contentRetention
+            && this.options.contentRetentionKey
+        ) {
             const html = transEvent.editor.getHTML();
             if ("<p></p>" === html || "" === html) {
                 localStorage.removeItem(this.options.contentRetentionKey);
@@ -472,6 +489,10 @@ export class AiEditor {
 
     getOptions() {
         return this.options;
+    }
+
+    getCollaborationUsers(): AiEditorCollaborationUser[] {
+        return this.collaborationSession?.getUsers() || [];
     }
 
     getAttributes(name: string) {
@@ -652,6 +673,7 @@ export class AiEditor {
     destroy() {
         this.options.onDestroy?.(this);
         this.innerEditor.destroy();
+        this.destroyCollaboration();
         this.eventComponents = [];
 
         //custom layout
@@ -667,5 +689,34 @@ export class AiEditor {
 
     isDestroyed() {
         return this.innerEditor.isDestroyed;
+    }
+
+    private initCollaboration() {
+        if (!this.isCollaborationEnabled()) {
+            return;
+        }
+
+        const supplied = this.options.collaboration?.session;
+        if (!supplied || !supplied.hasInitialSync()) {
+            throw new Error("Prepare and sync AiEditorCollaborationSession before creating AiEditor");
+        }
+        if (supplied.documentName !== this.options.collaboration?.documentName) {
+            throw new Error("Collaboration session document does not match documentName");
+        }
+
+        if (this.collaborationSession === supplied && supplied) {
+            return;
+        }
+        this.destroyCollaboration();
+        this.collaborationSession = supplied;
+    }
+
+    private destroyCollaboration() {
+        this.collaborationSession?.destroy();
+        this.collaborationSession = undefined;
+    }
+
+    private isCollaborationEnabled() {
+        return !!this.options.collaboration;
     }
 }

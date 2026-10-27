@@ -47,6 +47,10 @@ please refer to here: https://aieditor.dev/price
 - Classic/traditional style: https://aieditor.dev/demo
 - Modern style: http://doc.aieditor.com.cn
 
+## Local collaboration demo
+
+The [source collaboration demo](demos/collaboration-ts/README.md) connects this branch's AiEditor source directly to the sibling `kam-collaboration` development service. Run `npm run demo:collaboration` after starting that service.
+
 
 ## Completed
 

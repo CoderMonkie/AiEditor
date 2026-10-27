@@ -1,4 +1,5 @@
 export * from './core/AiEditor.ts';
+export * from './core/Collaboration.ts';
 export * from './ai/AiGlobalConfig.ts';
 export * from './ai/AiModelFactory.ts';
 export * from './ai/AiModelManager.ts';

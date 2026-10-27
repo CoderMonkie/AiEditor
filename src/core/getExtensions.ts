@@ -42,13 +42,29 @@ import {PasteExt} from "../extensions/PasteExt.ts";
 import {ClassNameExt} from "../extensions/ClassNameExt.ts";
 // import {SearchAndReplace, type SearchAndReplaceOptions} from "@sereneinserenade/tiptap-search-and-replace"; // TODO: fix
 import {FindReplaceExt, SearchAndReplace, type SearchAndReplaceOptions} from "../extensions/FindReplaceExt";
+import Collaboration from "@tiptap/extension-collaboration";
+import CollaborationCursor from "@tiptap/extension-collaboration-cursor";
 
 export const getExtensions = (editor: AiEditor, options: AiEditorOptions): Extensions => {
     // the Collaboration extension comes with its own history handling
     const ret: Extensions = [StarterKit.configure({
         codeBlock: false,
         heading: false,
+        history: options.collaboration ? false : undefined,
     })];
+
+    if (options.collaboration && editor.collaborationSession) {
+        ret.push(
+            Collaboration.configure({
+                document: editor.collaborationSession.document,
+                field: "content",
+            }),
+            CollaborationCursor.configure({
+                provider: editor.collaborationSession.provider,
+                user: editor.collaborationSession.user,
+            }),
+        );
+    }
 
     {
         //push default extensions

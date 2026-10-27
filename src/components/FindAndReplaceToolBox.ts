@@ -1,5 +1,5 @@
 import {EditorEvents} from "@tiptap/core";
-import {AiEditorEventListener,InnerEditor} from "../core/AiEditor";
+import {AiEditorEventListener,InnerEditor, type AiEditorOptions} from "../core/AiEditor";
 import {t} from "i18next";
 
 export type FindAndReplaceTabType = 'find' | 'replace';
@@ -41,8 +41,7 @@ export class FindAndReplaceToolBox extends HTMLElement implements AiEditorEventL
         this.currentMatchIndex = 0;
     }
 
-    // @ts-ignore
-    onCreate(props: EditorEvents['create'], options: AiEditorOptions) {
+    onCreate(props: EditorEvents['create'], _options: AiEditorOptions) {
         this.editor = props.editor as InnerEditor;
         this.style.display = 'none';
     }

@@ -1,7 +1,5 @@
 import {AbstractDropdownMenuButton} from "../AbstractDropdownMenuButton.ts";
 import {Editor, EditorEvents} from "@tiptap/core";
-import {t} from "i18next";
-import tippy from "tippy.js";
 import {downloadHtml, downloadMarkdown} from "../../util/downloadUtil.ts";
 
 type DownloadInfo = {
