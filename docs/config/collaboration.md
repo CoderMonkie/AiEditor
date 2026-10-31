@@ -9,10 +9,11 @@ At the same time, you can see other users' nicknames, focus location and other i
 ## How to use
 
 ```typescript
-new AiEditor({
-    element: "#aiEditor",
-    collaboration: {
+import { AiEditor, AiEditorCollaborationSession } from "aieditor";
+
+const collaboration = {
         url: "ws://127.0.0.1:8080?somekey=value",
+        documentId: "22222222-2222-4222-8222-222222222222",
         documentName: "my document",
         token: "your-token",
         userName: "Michael Yang",
@@ -23,12 +24,19 @@ new AiEditor({
         },
         onUsersUpdate: (users: any[]) => {
         },
-    },
-})
+};
+const session = new AiEditorCollaborationSession(collaboration);
+await session.waitForInitialSync();
+const editor = new AiEditor({
+    element: "#aiEditor",
+    collaboration: { ...collaboration, session },
+});
+// editor.destroy() also releases the session.
 ```
 
 - **url**: Backend service for multi-person collaboration, provided by AIEditor official.
-- **documentName**: document name (or document ID),
+- **documentId**: Required unique document ID (KAM `DocIndexID`). Room selection and storage use only this ID; equal titles do not merge documents and renaming does not change rooms.
+- **documentName**: Optional display title, never a fallback for `documentId`. The internal Hocuspocus protocol field `name` carries `documentId`, not the title.
 - **token**: user verification token（or user JWT）, used to verify the current user in backend service
 - **userName**: user nickname
 - **userColor**: user color (the color of the mouse displayed in the editor, the background color of the selected text, etc.), when not configured, the system automatically generates it.

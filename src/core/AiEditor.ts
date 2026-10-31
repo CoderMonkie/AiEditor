@@ -700,8 +700,8 @@ export class AiEditor {
         if (!supplied || !supplied.hasInitialSync()) {
             throw new Error("Prepare and sync AiEditorCollaborationSession before creating AiEditor");
         }
-        if (supplied.documentName !== this.options.collaboration?.documentName) {
-            throw new Error("Collaboration session document does not match documentName");
+        if (supplied.documentId !== this.options.collaboration?.documentId?.trim()) {
+            throw new Error("Collaboration session document does not match documentId");
         }
 
         if (this.collaborationSession === supplied && supplied) {

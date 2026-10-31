@@ -53,6 +53,8 @@ export const getExtensions = (editor: AiEditor, options: AiEditorOptions): Exten
         history: options.collaboration ? false : undefined,
     })];
 
+    // KAM_COLLAB_EXTENSIONS — bundle entry: D$ session branch (search this marker).
+    // Source baseline is configured here; KAM_COLLAB_WRITE_GUARD is currently bundle-only.
     if (options.collaboration && editor.collaborationSession) {
         ret.push(
             Collaboration.configure({

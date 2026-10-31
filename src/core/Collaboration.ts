@@ -1,5 +1,8 @@
 import { HocuspocusProvider } from "@hocuspocus/provider";
 import { Doc } from "yjs";
+import { resolveCollaborationUrl } from "./CollaborationUrl.ts";
+import { resolveCollaborationDocumentId } from "./CollaborationDocument.ts";
+import { requestCollaborationPersistence } from "./CollaborationPersistence.ts";
 
 export interface AiEditorCollaborationUser {
   id: string;
@@ -14,8 +17,11 @@ export interface AiEditorCollaborationStatus {
 }
 
 export interface AiEditorCollaborationOptions {
-  url: string;
-  documentName: string;
+  url?: string;
+  /** Unique document ID (KAM DocIndexID); never use the title as this value. */
+  documentId: string;
+  /** Optional display title; never used for room selection or storage lookup. */
+  documentName?: string;
   token?: string | (() => string) | (() => Promise<string>);
   userId?: string;
   userName: string;
@@ -73,6 +79,8 @@ const pickColor = (seed: string) => {
   return DEFAULT_COLORS[colorIndex];
 };
 
+// KAM_COLLAB_SESSION — component adapter: advanced-editor/hocks/useCollaboration.js.
+// These implementations share lifecycle concepts; the component adapter also gates writes.
 export class AiEditorCollaborationSession {
   document: Doc;
 
@@ -80,9 +88,12 @@ export class AiEditorCollaborationSession {
 
   user: AiEditorCollaborationUser;
 
-  readonly documentName: string;
+  readonly documentId: string;
+
+  readonly documentName?: string;
 
   private destroyed = false;
+  private readonly lifetime = new AbortController();
 
   private initialSyncCompleted = false;
 
@@ -95,6 +106,7 @@ export class AiEditorCollaborationSession {
   };
 
   constructor(options: AiEditorCollaborationOptions) {
+    this.documentId = resolveCollaborationDocumentId(options);
     this.documentName = options.documentName;
     const userId = options.userId || randomId();
     const userColor = options.userColor || pickColor(userId);
@@ -105,12 +117,15 @@ export class AiEditorCollaborationSession {
       color: userColor,
     };
 
+    // KAM_COLLAB_TRANSPORT — bundle entry: createCollaborationTransport.
+    // Keep transplanted additions readable; bundled Yjs/Provider names are mapped there.
     this.document = new Doc();
     this.document.getXmlFragment("content");
 
     this.provider = new HocuspocusProvider({
-      url: options.url,
-      name: options.documentName,
+      url: resolveCollaborationUrl(options.url),
+      // Hocuspocus calls its room key "name". It must carry the unique ID, not the title.
+      name: this.documentId,
       document: this.document,
       token: options.token,
       // All synchronization, including same-origin tabs, goes through server authorization.
@@ -185,6 +200,13 @@ export class AiEditorCollaborationSession {
     return { ...this.status };
   }
 
+  flush(): Promise<any> {
+    if (this.destroyed || !this.status.connected || !this.status.authenticated || !this.status.synced) {
+      return Promise.reject(new Error("Collaboration is not ready to confirm persistence"));
+    }
+    return requestCollaborationPersistence(this.provider, this.documentId, this.lifetime.signal);
+  }
+
   hasInitialSync(): boolean {
     return this.initialSyncCompleted && !this.destroyed;
   }
@@ -233,6 +255,7 @@ export class AiEditorCollaborationSession {
   destroy() {
     if (this.destroyed) return;
     this.destroyed = true;
+    this.lifetime.abort();
     for (const cancel of [...this.pendingInitialSync]) {
       cancel(new Error("Collaboration session destroyed"));
     }

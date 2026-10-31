@@ -8,6 +8,8 @@ const repositoryRoot = fileURLToPath(new URL("../..", import.meta.url));
 export default defineConfig({
   root: demoRoot,
   define: { "process.env": {} },
+  resolve: { dedupe: ["yjs", "y-prosemirror"] },
+  optimizeDeps: { include: ["yjs", "y-prosemirror"] },
   build: {
     rollupOptions: {
       input: {
@@ -21,6 +23,15 @@ export default defineConfig({
     port: 4404,
     strictPort: true,
     fs: { allow: [repositoryRoot] },
-    proxy: { "/api": "http://127.0.0.1:4402" },
+    // KAM_COLLAB_PORTS: 4404 frontend, 4401 WS, 4402 HTTP; legacy demos stay separate.
+    proxy: {
+      "/kam-collab/api": process.env.KAM_COLLAB_HTTP_TARGET || "http://127.0.0.1:4402",
+      "/api": process.env.KAM_COLLAB_HTTP_TARGET || "http://127.0.0.1:4402",
+      "/kam-collab/ws": {
+        target: process.env.KAM_COLLAB_WS_TARGET || "ws://127.0.0.1:4401",
+        ws: true,
+        rewrite: path => path.replace(/^\/kam-collab\/ws\/?/, "/"),
+      },
+    },
   },
 });
