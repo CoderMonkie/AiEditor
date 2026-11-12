@@ -14,6 +14,9 @@ export interface AiEditorCollaborationStatus {
   connected: boolean;
   authenticated: boolean;
   synced: boolean;
+  admitted: boolean;
+  writable: boolean;
+  rejectionReason?: string;
 }
 
 export interface AiEditorCollaborationOptions {
@@ -27,6 +30,8 @@ export interface AiEditorCollaborationOptions {
   userName: string;
   userColor?: string;
   parameters?: Record<string, string>;
+  /** KAM writers wait for the service to grant a seat and assign their color. */
+  requireEditorAdmission?: boolean;
   onAuthenticated?: () => void;
   onAuthenticationFailed?: (reason: string) => void;
   onUsersUpdate?: (users: AiEditorCollaborationUser[]) => void;
@@ -52,6 +57,8 @@ type SyncedPayload = {
 type StatelessPayload = {
   payload: string;
 };
+
+const offlineStatus = { connected: false, authenticated: false, synced: false, admitted: false };
 
 const DEFAULT_COLORS = [
   "#7986CB",
@@ -80,7 +87,7 @@ const pickColor = (seed: string) => {
 };
 
 // KAM_COLLAB_SESSION — component adapter: advanced-editor/hocks/useCollaboration.js.
-// These implementations share lifecycle concepts; the component adapter also gates writes.
+// KAM_COLLAB_ADMISSION — server seat, current connection color, and first sync gate.
 export class AiEditorCollaborationSession {
   document: Doc;
 
@@ -91,30 +98,43 @@ export class AiEditorCollaborationSession {
   readonly documentId: string;
 
   readonly documentName?: string;
+  readonly requiresEditorAdmission: boolean;
 
+  private readonly options: AiEditorCollaborationOptions;
   private destroyed = false;
   private readonly lifetime = new AbortController();
 
   private initialSyncCompleted = false;
 
   private readonly pendingInitialSync = new Set<(error: Error) => void>();
+  private readonly statusListeners = new Set<(status: AiEditorCollaborationStatus) => void>();
 
   private status: AiEditorCollaborationStatus = {
-    connected: false,
-    authenticated: false,
-    synced: false,
+    ...offlineStatus,
+    writable: false,
   };
 
   constructor(options: AiEditorCollaborationOptions) {
+    this.options = options;
     this.documentId = resolveCollaborationDocumentId(options);
     this.documentName = options.documentName;
-    const userId = options.userId || randomId();
-    const userColor = options.userColor || pickColor(userId);
+    this.requiresEditorAdmission = options.requireEditorAdmission === true;
+    const url = resolveCollaborationUrl(options.url);
+    const requestedUserId = options.userId?.trim();
+    if (this.requiresEditorAdmission) {
+      if (!requestedUserId || requestedUserId.length > 128 || /[\x00-\x1f\x7f]/.test(requestedUserId)) {
+        throw new Error("KAM editor admission requires a stable userId");
+      }
+      if (new URL(url).search) {
+        throw new Error("KAM editor admission requires a WebSocket URL without a query; use parameters");
+      }
+    }
+    const userId = (this.requiresEditorAdmission ? requestedUserId : options.userId) || randomId();
 
     this.user = {
       id: userId,
       name: options.userName,
-      color: userColor,
+      color: this.requiresEditorAdmission ? "" : (options.userColor || pickColor(userId)),
     };
 
     // KAM_COLLAB_TRANSPORT — bundle entry: createCollaborationTransport.
@@ -123,7 +143,7 @@ export class AiEditorCollaborationSession {
     this.document.getXmlFragment("content");
 
     this.provider = new HocuspocusProvider({
-      url: resolveCollaborationUrl(options.url),
+      url,
       // Hocuspocus calls its room key "name". It must carry the unique ID, not the title.
       name: this.documentId,
       document: this.document,
@@ -132,55 +152,39 @@ export class AiEditorCollaborationSession {
       broadcast: false,
       // Each session owns its websocket, so disconnect must close it.
       preserveConnection: false,
-      parameters: options.parameters,
+      parameters: this.requiresEditorAdmission ? { ...options.parameters, kam: "1", userId } : options.parameters,
       onOpen: () => {
-        this.applyLocalUser();
+        if (this.requiresEditorAdmission) {
+          this.resetConnection(undefined);
+          this.provider.synced = false;
+        } else this.applyLocalUser();
       },
       onConnect: () => {
-        this.applyLocalUser();
-        this.updateStatus(options, {
-          connected: true,
-        });
+        if (!this.requiresEditorAdmission) this.applyLocalUser();
+        this.updateStatus({ connected: true });
       },
       onAuthenticated: () => {
+        this.updateStatus({ authenticated: true, rejectionReason: undefined });
         options.onAuthenticated?.();
-        this.updateStatus(options, {
-          authenticated: true,
-        });
       },
       onAuthenticationFailed: ({ reason }: AuthenticationFailedPayload) => {
+        this.resetConnection(reason);
         options.onAuthenticationFailed?.(reason);
-        this.updateStatus(options, {
-          authenticated: false,
-          synced: false,
-        });
       },
       onSynced: ({ state }: SyncedPayload) => {
+        this.updateStatus({ synced: state });
         options.onSynced?.(state);
-        this.updateStatus(options, {
-          synced: state,
-        });
       },
       onStateless: ({ payload }: StatelessPayload) => {
+        if (this.requiresEditorAdmission) this.acceptAdmission(payload);
         options.onStateless?.(payload);
       },
-      onDisconnect: () => {
-        this.updateStatus(options, {
-          connected: false,
-          authenticated: false,
-          synced: false,
-        });
-      },
-      onClose: () => {
-        this.updateStatus(options, {
-          connected: false,
-          authenticated: false,
-          synced: false,
-        });
-      },
+      onDisconnect: () => this.resetConnection(this.status.rejectionReason),
+      onClose: () => this.resetConnection(this.status.rejectionReason),
     });
 
-    this.applyLocalUser();
+    if (this.requiresEditorAdmission) this.provider.awareness?.setLocalState(null);
+    else this.applyLocalUser();
     this.provider.awareness?.on("change", () => {
       options.onUsersUpdate?.(this.getUsers());
     });
@@ -200,25 +204,43 @@ export class AiEditorCollaborationSession {
     return { ...this.status };
   }
 
+  subscribeStatus(listener: (status: AiEditorCollaborationStatus) => void): () => void {
+    this.statusListeners.add(listener);
+    return () => this.statusListeners.delete(listener);
+  }
+
+  canWrite(): boolean {
+    return !this.destroyed && this.status.writable;
+  }
+
+  disconnect() {
+    if (this.destroyed) return;
+    this.resetConnection(undefined);
+    this.provider.disconnect();
+  }
+
+  /** Retry on the same Y.Doc, including after an admission refusal. */
+  async reconnect(): Promise<void> {
+    if (this.destroyed) throw new Error("Collaboration session destroyed");
+    if (this.status.connected) return;
+    this.resetConnection(undefined);
+    await this.provider.connect();
+  }
+
   flush(): Promise<any> {
-    if (this.destroyed || !this.status.connected || !this.status.authenticated || !this.status.synced) {
+    if (this.destroyed || !this.isReady() || (this.requiresEditorAdmission && !this.canWrite())) {
       return Promise.reject(new Error("Collaboration is not ready to confirm persistence"));
     }
     return requestCollaborationPersistence(this.provider, this.documentId, this.lifetime.signal);
   }
 
   hasInitialSync(): boolean {
-    return this.initialSyncCompleted && !this.destroyed;
+    return this.initialSyncCompleted && !this.destroyed && (!this.requiresEditorAdmission || this.canWrite());
   }
 
   /** Wait before binding the editor, so its empty initial paragraph cannot join the shared document. */
   waitForInitialSync(timeoutMs = 12_000, signal?: AbortSignal): Promise<void> {
     if (this.destroyed) return Promise.reject(new Error("Collaboration session destroyed"));
-    if (this.provider.synced && this.status.authenticated) {
-      this.initialSyncCompleted = true;
-      return Promise.resolve();
-    }
-
     return new Promise((resolve, reject) => {
       let settled = false;
       const finish = (error?: Error) => {
@@ -226,8 +248,7 @@ export class AiEditorCollaborationSession {
         settled = true;
         clearTimeout(timer);
         this.pendingInitialSync.delete(cancel);
-        this.provider.off("synced", onSynced);
-        this.provider.off("authenticationFailed", onAuthenticationFailed);
+        unsubscribe();
         signal?.removeEventListener("abort", onAbort);
         if (error) reject(error);
         else {
@@ -235,20 +256,18 @@ export class AiEditorCollaborationSession {
           resolve();
         }
       };
-      const onSynced = ({ state }: SyncedPayload) => {
-        if (state && this.status.authenticated) finish();
+      const check = () => {
+        if (this.status.rejectionReason) finish(new Error(`Collaboration authentication failed: ${this.status.rejectionReason}`));
+        else if (this.requiresEditorAdmission ? this.canWrite() : this.isReady()) finish();
       };
-      const onAuthenticationFailed = ({ reason }: AuthenticationFailedPayload) =>
-        finish(new Error(`Collaboration authentication failed: ${reason}`));
       const onAbort = () => finish(new Error("Collaboration initialization cancelled"));
       const cancel = (error: Error) => finish(error);
       const timer = setTimeout(() => finish(new Error("Collaboration initial sync timed out")), timeoutMs);
       this.pendingInitialSync.add(cancel);
-      this.provider.on("synced", onSynced);
-      this.provider.on("authenticationFailed", onAuthenticationFailed);
+      const unsubscribe = this.subscribeStatus(check);
       signal?.addEventListener("abort", onAbort, { once: true });
       if (signal?.aborted) onAbort();
-      else if (this.provider.synced && this.status.authenticated) finish();
+      else check();
     });
   }
 
@@ -259,6 +278,7 @@ export class AiEditorCollaborationSession {
     for (const cancel of [...this.pendingInitialSync]) {
       cancel(new Error("Collaboration session destroyed"));
     }
+    this.statusListeners.clear();
     this.provider.destroy();
     // This session created its own websocket provider; HocuspocusProvider.destroy()
     // detaches it but does not dispose the underlying socket provider.
@@ -267,20 +287,46 @@ export class AiEditorCollaborationSession {
   }
 
   private applyLocalUser() {
-    this.provider.awareness?.setLocalStateField("user", this.user);
+    const awareness = this.provider.awareness;
+    if (awareness) awareness.setLocalState({ ...awareness.getLocalState(), user: { ...this.user } });
   }
 
-  private updateStatus(
-    options: AiEditorCollaborationOptions,
-    patch: Partial<AiEditorCollaborationStatus>,
-  ) {
-    this.status = {
-      ...this.status,
-      ...patch,
-    };
+  private resetConnection(rejectionReason: string | undefined) {
+    if (this.requiresEditorAdmission) this.user.color = "";
+    this.updateStatus({ ...offlineStatus, rejectionReason });
+  }
 
-    options.onConnectionStatusChange?.({
-      ...this.status,
-    });
+  private acceptAdmission(payload: string) {
+    if (!this.status.authenticated || this.status.admitted) return;
+    let message;
+    try { message = JSON.parse(payload); } catch { return; }
+    if (message?.type !== "kam:editor-admitted" || message.documentId !== this.documentId ||
+        message.userId !== this.user.id || typeof message.color !== "string" || !/^#[0-9a-f]{6}$/i.test(message.color)) return;
+    this.user.color = message.color;
+    this.updateStatus({ admitted: true });
+  }
+
+  private isReady(status = this.status) {
+    return status.connected && status.authenticated && status.synced;
+  }
+
+  private updateStatus(patch: Partial<AiEditorCollaborationStatus>) {
+    if (this.destroyed) return;
+    const previous = this.status;
+    const next = { ...previous, ...patch };
+    next.writable = this.isReady(next) && this.provider.authorizedScope === "read-write" &&
+      (!this.requiresEditorAdmission || next.admitted);
+    this.status = next;
+    if (this.requiresEditorAdmission) {
+      if (next.writable && !previous.writable) this.applyLocalUser();
+      // With no local state the cursor plugin cannot publish a cursor without an assigned user.
+      else if (!next.writable && this.provider.awareness?.getLocalState() != null) {
+        this.provider.awareness.setLocalState(null);
+      }
+    }
+    if (Object.keys(next).some(key => next[key as keyof AiEditorCollaborationStatus] !== previous[key as keyof AiEditorCollaborationStatus])) {
+      this.options.onConnectionStatusChange?.(this.getStatus());
+      for (const listener of this.statusListeners) listener(this.getStatus());
+    }
   }
 }

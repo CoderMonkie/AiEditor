@@ -10,7 +10,8 @@
     input, button { font: inherit; padding: 8px 10px; }
     input { width: 37ch; max-width: 80vw; font-family: ui-monospace, monospace; }
     button { cursor: pointer; }
-    #health { color: #64748b; font-size: 13px; }
+    #health, #join-status { color: #64748b; font-size: 13px; }
+    #join-status:empty { display: none; }
     #clients { display: grid; grid-template-columns: repeat(2, minmax(320px, 1fr)); gap: 16px; margin-top: 20px; }
     iframe { width: 100%; height: 435px; border: 1px solid #cbd5e1; border-radius: 8px; background: white; }
     @media(max-width: 850px) { #clients { grid-template-columns: 1fr; } }
@@ -18,15 +19,16 @@
 </head>
 <body>
   <h1>AiEditor 源码协作示例</h1>
-  <p>在编辑者窗口输入正文，只读窗口应实时更新。在线名单包含同一文档在其它标签页的窗口；关闭本页参与者只关闭下方窗口。</p>
+  <p>两个编辑者的颜色由协作服务分配。可以再加一名编辑者验证满员提示，或加入只读查看者观察同步。</p>
   <header>
-    <label>文档 ID <input id="document-id" value="22222222-2222-4222-8222-222222222222" /></label>
+    <label>文档 ID <input id="document-id" value="22222222-2222-4222-8222-222222222223" /></label>
     <label>文档名称 <input id="document-name" value="源码协作示例文档" /></label>
     <button id="writer">加入编辑者</button>
     <button id="reader">加入查看者</button>
     <button id="clear">关闭本页参与者</button>
   </header>
   <p id="health">正在检查服务…</p>
+  <p id="join-status" role="status"></p>
   <div id="clients"></div>
   <script type="module" src="/main.ts"></script>
 </body>

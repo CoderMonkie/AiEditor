@@ -268,6 +268,7 @@ export class AiEditor {
     eventComponents: AiEditorEventListener[] = [];
 
     collaborationSession?: AiEditorCollaborationSession;
+    private unsubscribeCollaborationStatus?: () => void;
 
     constructor(_: AiEditorOptions) {
         this.options = {...defaultOptions, ..._};
@@ -368,7 +369,7 @@ export class AiEditor {
             ...this.options as any,
             element: this.mainEl,
             content: collaborationEnabled ? undefined : content,
-            editable: this.options.editable,
+            editable: this.effectiveEditable(),
             extensions: this.getExtensions(),
             onCreate: (props) => this.onCreate(props),
             onTransaction: (props) => this.onTransaction(props),
@@ -420,6 +421,9 @@ export class AiEditor {
             AiModelManager.init(this.innerEditor, this.options.ai);
         }
 
+        if (this.collaborationSession?.requiresEditorAdmission && !this.effectiveEditable()) {
+            this.refreshEditable();
+        }
         if (this.options.onCreated) {
             this.options.onCreated(this);
         }
@@ -613,11 +617,22 @@ export class AiEditor {
 
     setEditable(editable: boolean) {
         this.options.editable = editable;
+        this.refreshEditable();
+        return this;
+    }
+
+    private effectiveEditable() {
+        const session = this.collaborationSession;
+        return !!this.options.editable && (!session?.requiresEditorAdmission || session.canWrite());
+    }
+
+    private refreshEditable() {
+        if (!this.innerEditor || this.innerEditor.isDestroyed) return;
+        const editable = this.effectiveEditable();
         this.innerEditor.setEditable(editable, true);
         this.eventComponents.forEach((ec) => {
             ec.onEditableChange(editable)
         })
-        return this;
     }
 
     setDocName(name: string) {
@@ -697,21 +712,28 @@ export class AiEditor {
         }
 
         const supplied = this.options.collaboration?.session;
-        if (!supplied || !supplied.hasInitialSync()) {
-            throw new Error("Prepare and sync AiEditorCollaborationSession before creating AiEditor");
-        }
-        if (supplied.documentId !== this.options.collaboration?.documentId?.trim()) {
+        if (supplied && supplied.documentId !== this.options.collaboration?.documentId?.trim()) {
             throw new Error("Collaboration session document does not match documentId");
         }
-
         if (this.collaborationSession === supplied && supplied) {
             return;
         }
+        if (!supplied?.hasInitialSync()) {
+            throw new Error("Prepare and sync AiEditorCollaborationSession before creating AiEditor");
+        }
         this.destroyCollaboration();
         this.collaborationSession = supplied;
+        if (supplied.requiresEditorAdmission) {
+            this.unsubscribeCollaborationStatus = supplied.subscribeStatus(status => {
+                const editable = !!this.options.editable && status.writable;
+                if (this.innerEditor && this.innerEditor.isEditable !== editable) this.refreshEditable();
+            });
+        }
     }
 
     private destroyCollaboration() {
+        this.unsubscribeCollaborationStatus?.();
+        this.unsubscribeCollaborationStatus = undefined;
         this.collaborationSession?.destroy();
         this.collaborationSession = undefined;
     }

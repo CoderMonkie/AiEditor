@@ -23,8 +23,9 @@ roleEl.textContent = role === "reader" ? "只读查看者" : "编辑者";
 
 let editor: AiEditor | undefined;
 let session: AiEditorCollaborationSession | undefined;
-let deliberatelyDisconnected = false;
-let authenticationError: string | null = null;
+let joining = false;
+let closed = false;
+let joinError = "";
 
 function avatarText(value: string) {
   const characters = [...value.trim()];
@@ -103,73 +104,91 @@ document.addEventListener("keydown", event => {
 });
 
 connectionButton.addEventListener("click", () => {
-  if (!session) return;
-  deliberatelyDisconnected = !deliberatelyDisconnected;
-  connectionButton.textContent = deliberatelyDisconnected ? "重新连接" : "断开本端";
-  if (deliberatelyDisconnected) session.provider.disconnect();
-  else session.provider.connect();
+  if (!session || joining) return;
+  if (session.getStatus().connected) session.disconnect();
+  else if (!editor) void join(true);
+  else {
+    joinError = "";
+    void session.reconnect().catch(showJoinError);
+  }
 });
 
 function updateEditableAndStatus() {
   if (!session) return;
   const state = session.getStatus();
-  const ready = state.connected && state.authenticated && state.synced;
-  if (editor && !editor.isDestroyed()) editor.setEditable(role === "writer" && ready);
-  statusEl.textContent = authenticationError ? `认证失败：${authenticationError}`
-    : ready ? "协作中" : state.connected ? "同步中 · 输入已停用" : "连接断开 · 输入已停用";
+  const ready = role === "writer" ? state.writable : state.connected && state.authenticated && state.synced;
+  roleEl.textContent = role === "reader" ? "只读查看者" : ready ? "编辑者" : editor ? "编辑暂停" : "申请编辑";
+  statusEl.textContent = state.rejectionReason === "KAM_EDITOR_LIMIT"
+    ? editor ? "编辑席位已满 · 本端修改保留，可重新连接" : "编辑席位已满 · 未进入共享稿，可重新连接"
+    : state.rejectionReason ? `无法加入：${state.rejectionReason}`
+    : joinError || (ready ? "协作中" : joining || state.connected ? "正在加入 · 输入已停用" : "连接断开 · 输入已停用");
+  statusEl.title = statusEl.textContent;
+  connectionButton.textContent = state.connected ? "断开本端" : "重新连接";
+  connectionButton.disabled = joining;
+  selfAvatar.style.setProperty("--avatar-color", avatarColor(session.user.color));
   statusDot.classList.toggle("ready", ready);
   statusDot.classList.toggle("offline", !state.connected);
   document.body.classList.toggle("offline", !ready);
   renderPresence(ready);
 }
 
-async function start() {
-  session = new AiEditorCollaborationSession({
-    url: "/kam-collab/ws",
-    documentId,
-    documentName,
-    token: role === "reader" ? "dev-reader" : "dev-writer",
-    userId,
-    userName: name,
-    onAuthenticated: () => { authenticationError = null; updateEditableAndStatus(); },
-    onConnectionStatusChange: updateEditableAndStatus,
-    onUsersUpdate: updateEditableAndStatus,
-    onAuthenticationFailed: reason => { authenticationError = reason; updateEditableAndStatus(); },
-  });
-  selfAvatar.textContent = avatarText(session.user.name);
-  selfAvatar.style.setProperty("--avatar-color", avatarColor(session.user.color));
-  selfAvatar.title = `${session.user.name}（我）`;
+function showJoinError(error: unknown) {
+  if (closed) return;
+  if (!session?.getStatus().rejectionReason) {
+    joinError = `加入失败：${error instanceof Error ? error.message : String(error)}`;
+  }
   updateEditableAndStatus();
-  await session.waitForInitialSync();
-  editor = new AiEditor({
-    element: "#editor",
-    documentName,
-    contentRetention: false,
-    editable: role === "writer",
-    draggable: false,
-    toolbarKeys: role === "writer"
-      ? ["undo", "redo", "divider", "bold", "italic", "underline", "divider", "bullet-list", "ordered-list"]
-      : [],
-    collaboration: {
-      url: "/kam-collab/ws",
-      documentId,
-      documentName,
-      userName: name,
-      session,
-    },
-    onCreated: created => {
-      editor = created;
-      updateEditableAndStatus();
-    },
-  });
 }
 
-void start().catch(error => {
-  statusEl.textContent = `加入失败：${error instanceof Error ? error.message : String(error)}`;
-  session?.destroy();
-});
+async function join(retry = false) {
+  if (!session || joining || closed) return;
+  joining = true;
+  joinError = "";
+  updateEditableAndStatus();
+  try {
+    if (retry) await session.reconnect();
+    await session.waitForInitialSync();
+    if (closed) return;
+    editor = new AiEditor({
+      element: "#editor",
+      documentName,
+      contentRetention: false,
+      editable: role === "writer",
+      draggable: false,
+      toolbarKeys: role === "writer"
+        ? ["undo", "redo", "divider", "bold", "italic", "underline", "divider", "bullet-list", "ordered-list"]
+        : [],
+      collaboration: { documentId, documentName, userName: name, session },
+    });
+  } catch (error) {
+    if (!session.getStatus().rejectionReason) session.disconnect();
+    showJoinError(error);
+  } finally {
+    joining = false;
+    if (!closed) updateEditableAndStatus();
+  }
+}
+
+try {
+  session = new AiEditorCollaborationSession({
+    url: "/kam-collab/ws", documentId, documentName, userId, userName: name,
+    token: role === "reader" ? "dev-reader" : "dev-writer",
+    userColor: role === "reader" ? "#64748b" : undefined,
+    parameters: { kam: "1" },
+    requireEditorAdmission: role === "writer",
+    onConnectionStatusChange: updateEditableAndStatus,
+    onUsersUpdate: updateEditableAndStatus,
+  });
+  selfAvatar.textContent = avatarText(session.user.name);
+  selfAvatar.title = `${session.user.name}（我）`;
+  void join();
+} catch (error) {
+  statusEl.textContent = `加入失败：${String(error)}`;
+  connectionButton.disabled = true;
+}
 
 window.addEventListener("pagehide", () => {
+  closed = true;
   if (editor && !editor.isDestroyed()) editor.destroy();
   else session?.destroy();
 }, { once: true });

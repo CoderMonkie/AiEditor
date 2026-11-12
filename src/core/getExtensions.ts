@@ -44,6 +44,8 @@ import {ClassNameExt} from "../extensions/ClassNameExt.ts";
 import {FindReplaceExt, SearchAndReplace, type SearchAndReplaceOptions} from "../extensions/FindReplaceExt";
 import Collaboration from "@tiptap/extension-collaboration";
 import CollaborationCursor from "@tiptap/extension-collaboration-cursor";
+import {Plugin} from "@tiptap/pm/state";
+import {ySyncPluginKey} from "y-prosemirror";
 
 export const getExtensions = (editor: AiEditor, options: AiEditorOptions): Extensions => {
     // the Collaboration extension comes with its own history handling
@@ -54,16 +56,26 @@ export const getExtensions = (editor: AiEditor, options: AiEditorOptions): Exten
     })];
 
     // KAM_COLLAB_EXTENSIONS — bundle entry: D$ session branch (search this marker).
-    // Source baseline is configured here; KAM_COLLAB_WRITE_GUARD is currently bundle-only.
-    if (options.collaboration && editor.collaborationSession) {
+    const session = editor.collaborationSession;
+    if (options.collaboration && session) {
+        // KAM_COLLAB_WRITE_GUARD — also block local commands while the managed editor is paused.
+        const extension = session.requiresEditorAdmission ? Collaboration.extend({
+            addProseMirrorPlugins() {
+                return [...(this.parent?.() ?? []), new Plugin({
+                    filterTransaction: transaction => !transaction.docChanged ||
+                        !!transaction.getMeta(ySyncPluginKey)?.isChangeOrigin ||
+                        (!!editor.options.editable && session.canWrite()),
+                })];
+            },
+        }) : Collaboration;
         ret.push(
-            Collaboration.configure({
-                document: editor.collaborationSession.document,
+            extension.configure({
+                document: session.document,
                 field: "content",
             }),
             CollaborationCursor.configure({
-                provider: editor.collaborationSession.provider,
-                user: editor.collaborationSession.user,
+                provider: session.provider,
+                user: session.user,
             }),
         );
     }
